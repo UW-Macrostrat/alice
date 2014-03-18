@@ -60,7 +60,7 @@ class Task(object):
       self.get_gaps(0, 'x', self.year, pyConn, pyCursor1)
       print "---- Done with year " + str(self.year) + " ----"
 
-      
+
 # This corresponds to get_gaps
   def get_gaps(self, degree, direction, year, connection, cursor):
     length_query = """
