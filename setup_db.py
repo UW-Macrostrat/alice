@@ -46,7 +46,7 @@ while z < 551:
   "DROP TABLE reconstructed_" + current + "_simple;"
   """CREATE TABLE reconstructed_""" + current + """_fixed AS
         SELECT ST_makeValid(ST_SnapToGrid(geom,0.000001)) AS geom, plateid AS plateid, name, objectid
-        FROM reconstructed_""" + current + """_clockwise;"""
+        FROM reconstructed_""" + current + """_clockwise WHERE name IS NOT NULL;"""
   "ALTER TABLE reconstructed_" + current + "_fixed ALTER COLUMN plateid TYPE integer;"
   "DROP TABLE reconstructed_" + current + "_clockwise;"
   "CREATE INDEX g" + current + " ON reconstructed_" + current + "_fixed USING gist (geom);"
