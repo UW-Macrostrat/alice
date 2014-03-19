@@ -1,10 +1,9 @@
 # Adapted/borrowed from http://stackoverflow.com/a/7556042/1956065
 import multiprocessing
 import psycopg2
-import sys
 from config import *
 
-class Consumer(multiprocessing.Process):
+class Processor(multiprocessing.Process):
 
   def __init__(self, task_queue, result_queue):
     multiprocessing.Process.__init__(self)
@@ -30,9 +29,10 @@ class Consumer(multiprocessing.Process):
 
 class Task(object):
   # Assign check and year when initialized
-  def __init__(self, check, year):
+  def __init__(self, check, year, type):
     self.check = check
     self.year = year
+    self.type = type
 
   # Acts as the controller for a given year
   def __call__(self, connection=None):
@@ -51,18 +51,55 @@ class Task(object):
     else:
       degree = 89
       while degree > 0:
-        self.get_gaps(degree, 'n', self.year, pyConn, pyCursor1)
-        self.get_gaps(degree, 's', self.year, pyConn, pyCursor1)
+        if self.type == "lengths":
+          self.get_length_data(degree, 'n', self.year, pyConn, pyCursor1)
+          self.get_length_data(degree, 's', self.year, pyConn, pyCursor1)
 
-        degree -= 1
+          degree -= 1
+        else:
+          self.get_gap_data(degree, 'n', self.year, pyConn, pyCursor1)
+          self.get_gap_data(degree, 's', self.year, pyConn, pyCursor1)
 
-      # Populate the equator
-      self.get_gaps(0, 'x', self.year, pyConn, pyCursor1)
+          degree -= 1
+
+      # Populate the equator]
+      if self.type == "lengths":
+        self.get_length_data(0, 'x', self.year, pyConn, pyCursor1)
+      else:
+        self.get_gap_data(0, 'x', self.year, pyConn, pyCursor1)
+
       print "---- Done with year " + str(self.year) + " ----"
+  
+  # Method for getting length data
+  def get_length_data(self, degree, direction, year, connection, cursor):
+    length_query = """
+      SELECT SUM(length) AS sum FROM (
+        SELECT ST_Length_Spheroid(
+          ST_Intersection(
+            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), reconstructed_""" + str(year) + """_dissolve.geom
+          ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
+        )/1000 length FROM reconstructed_""" + str(year) + """_dissolve
+      ) giantSelect
+      WHERE length > 0
+    """
 
-      
-# This corresponds to get_gaps
-  def get_gaps(self, degree, direction, year, connection, cursor):
+    cursor.execute(length_query)
+    lengths = cursor.fetchall()
+
+    # If something is returned, use that, otherwise default to zero
+    if lengths[0][0] is not None:
+      total_length = lengths[0][0]
+    else:
+      total_length = 0
+
+    # Store the length
+    self.update_matrix(degree, direction, year, "length_year_matrix", total_length, connection, cursor)
+
+    # Indicate with year/direction/degree combo was completed
+    print str(year) + " " + direction + str(degree)
+  
+  # Method for getting gap data
+  def get_gap_data(self, degree, direction, year, connection, cursor):
     get_gap_lengths = """
       SELECT ST_Length_Spheroid(geometry, 'SPHEROID["GRS_1980",6378137,298.257222101]')/1000 AS gap_length FROM (
         SELECT (ST_Dump(
@@ -100,23 +137,7 @@ class Task(object):
     # Indicate with year/direction/degree combo was completed
     print str(year) + " " + direction + str(degree)
 
-  # Stores the number of plates crossed
-  def update_matrix(self, degree, direction, year, table, count, connection, cursor):
-    cursor.execute("UPDATE " + str(table) + " SET " + str(direction) + str(degree) + " = " + str(count) + " WHERE year = " + str(year))
+
+  def update_matrix(self, degree, direction, year, table, data, connection, cursor):
+    cursor.execute("UPDATE " + str(table) + " SET " + str(direction) + str(degree) + " = " + str(data) + " WHERE year = " + str(year))
     connection.commit()
-
-if __name__ == '__main__':
-  tasks = multiprocessing.JoinableQueue()
-  results = multiprocessing.Queue()
-
-  num_consumers = multiprocessing.cpu_count() - 2
-  consumers = [Consumer(tasks, results) for i in xrange(num_consumers)]
-
-  for w in consumers:
-    w.start()
-
-  for i in xrange(10):
-    tasks.put(Task("SELECT n89 FROM gaps250 WHERE year = ", i))
-
-  for i in range(num_consumers):
-    tasks.put(None)
