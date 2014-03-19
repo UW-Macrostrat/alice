@@ -5,7 +5,7 @@ import sys
 import psycopg2
 from config import *
 
-os.system("psql -f create_alice.sql")
+os.system("psql -U " + str(user_name) + " -d postgres -f create_alice.sql")
 
 # Connect to the database
 try:
@@ -20,7 +20,7 @@ cur = conn.cursor()
 i = 0
 while i < 551:
   shapefileName = "reconstructed_" + str(i) + ".00Ma.shp"
-  os.system("shp2pgsql -s 4326 polygons_550_to_0Ma/Phanerozoic_EarthByte_ContinentalRegions/" + shapefileName + " public." + shapefileName.split(".")[0] + " | psql -h " + host_name + " -U " + user_name + " -d alice -p " + port_no)
+  os.system("shp2pgsql -s 4326 polygons_550_to_0Ma/Phanerozoic_EarthByte_ContinentalRegions/" + shapefileName + " public." + shapefileName.split(".")[0] + " | psql -h " + str(host_name) + " -U " + str(user_name) + " -d alice -p " + str(port_no))
   i += 1
 
 print "Done loading GPlates geometry"
