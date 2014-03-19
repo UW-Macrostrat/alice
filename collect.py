@@ -23,7 +23,7 @@ if __name__ == '__main__':
     each.start()
   
   # Set the range to whatever year you want to go up to (551 is the max)
-  for i in xrange(10):
+  for i in xrange(551):
     if arguments.type == "gaps":
       tasks.put(Task("SELECT n89 FROM gaps250 WHERE year = ", i, "gaps"))
     else:

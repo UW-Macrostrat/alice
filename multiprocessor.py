@@ -9,7 +9,7 @@ class Processor(multiprocessing.Process):
     multiprocessing.Process.__init__(self)
     self.task_queue = task_queue
     self.result_queue = result_queue
-    self.pyConn = psycopg2.connect(dbname="gplates", user=user_name, host=host_name, port=port_no)
+    self.pyConn = psycopg2.connect(dbname="alice", user=user_name, host=host_name, port=port_no)
     self.pyConn.set_isolation_level(0)
 
 
@@ -103,7 +103,7 @@ class Task(object):
     get_gap_lengths = """
       SELECT ST_Length_Spheroid(geometry, 'SPHEROID["GRS_1980",6378137,298.257222101]')/1000 AS gap_length FROM (
         SELECT (ST_Dump(
-            (SELECT ST_DIFFERENCE((SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), ST_UNION(geom)) 
+            (SELECT ST_DIFFERENCE((SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), ST_UNION(ST_Buffer(geom, 0.0000001))) 
           FROM reconstructed_""" + str(self.year) + """_fixed)
         )).geom AS geometry
       ) giantselect
