@@ -32,8 +32,7 @@ while z < 551:
   # Create a cursor for executing queries
   cur = conn.cursor()
 
-  # If the data hasn't been processed yet, uncomment this
-  
+  # Process the data
   query = ("ALTER TABLE reconstructed_" + current + " ADD COLUMN oid SERIAL;"
   "UPDATE reconstructed_" + current + " SET name = 'valid_continental' WHERE objectid_1 = 107;"
   "UPDATE reconstructed_" + current + " SET name = 'valid_continental' WHERE objectid_1 = 144;"
@@ -41,17 +40,17 @@ while z < 551:
   "ALTER TABLE reconstructed_" + current + " ADD COLUMN area numeric;"
   "UPDATE reconstructed_" + current + " SET area = ST_Area(geom);"
   "CREATE TABLE reconstructed_" + current + "_processed AS SELECT oid, plateid1 as plateid, name, geom FROM reconstructed_" + current + " WHERE area > 0.3 AND name IS NOT NULL;"
-  "CREATE TABLE reconstructed_" + current + "_simple AS SELECT oid, plateid1 as plateid, name, ST_SimplifyPreserveTopology(geom, 0.1) AS geom FROM reconstructed_" + current + ";"
+  "CREATE TABLE reconstructed_" + current + "_simple AS SELECT oid, plateid1 as plateid, name, objectid_1 as objectid, ST_SimplifyPreserveTopology(geom, 0.1) AS geom FROM reconstructed_" + current + ";"
   "DROP TABLE reconstructed_" + current + "_processed;"
-  "CREATE TABLE reconstructed_" + current + "_clockwise AS SELECT oid, plateid, name, ST_ForceRHR(geom) AS geom FROM reconstructed_" + current + "_simple;"
+  "CREATE TABLE reconstructed_" + current + "_clockwise AS SELECT oid, plateid, name, objectid, ST_ForceRHR(geom) AS geom FROM reconstructed_" + current + "_simple;"
   "DROP TABLE reconstructed_" + current + "_simple;"
-  """CREATE TABLE reconstructed_""" + current + """_dissolve AS
-        SELECT ST_makeValid(ST_SnapToGrid(geom,0.000001)) AS geom, plateid AS plateid, name
+  """CREATE TABLE reconstructed_""" + current + """_fixed AS
+        SELECT ST_makeValid(ST_SnapToGrid(geom,0.000001)) AS geom, plateid AS plateid, name, objectid
         FROM reconstructed_""" + current + """_clockwise;"""
-  "ALTER TABLE reconstructed_" + current + "_dissolve ALTER COLUMN plateid TYPE integer;"
+  "ALTER TABLE reconstructed_" + current + "_fixed ALTER COLUMN plateid TYPE integer;"
   "DROP TABLE reconstructed_" + current + "_clockwise;"
-  "CREATE INDEX g" + current + " ON reconstructed_" + current + "_dissolve USING gist (geom);"
-  "CREATE INDEX o" + current + " ON reconstructed_" + current + " USING gist (geom);")
+  "CREATE INDEX g" + current + " ON reconstructed_" + current + "_fixed USING gist (geom);"
+  "DROP TABLE reconstructed_" + current + ";")
 
   # Process the data
   try:

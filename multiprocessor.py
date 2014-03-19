@@ -70,15 +70,15 @@ class Task(object):
 
       print "---- Done with year " + str(self.year) + " ----"
   
-  # Method for getting length data
+  # Method for getting length
   def get_length_data(self, degree, direction, year, connection, cursor):
     length_query = """
       SELECT SUM(length) AS sum FROM (
         SELECT ST_Length_Spheroid(
           ST_Intersection(
-            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), reconstructed_""" + str(year) + """_dissolve.geom
+            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), reconstructed_""" + str(year) + """_fixed.geom
           ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
-        )/1000 length FROM reconstructed_""" + str(year) + """_dissolve
+        )/1000 length FROM reconstructed_""" + str(year) + """_fixed
       ) giantSelect
       WHERE length > 0
     """
@@ -104,7 +104,7 @@ class Task(object):
       SELECT ST_Length_Spheroid(geometry, 'SPHEROID["GRS_1980",6378137,298.257222101]')/1000 AS gap_length FROM (
         SELECT (ST_Dump(
             (SELECT ST_DIFFERENCE((SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), ST_UNION(geom)) 
-          FROM reconstructed_""" + str(self.year) + """_dissolve)
+          FROM reconstructed_""" + str(self.year) + """_fixed)
         )).geom AS geometry
       ) giantselect
     """
