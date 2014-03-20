@@ -1,6 +1,7 @@
 # Adapted/borrowed from http://stackoverflow.com/a/7556042/1956065
 import multiprocessing
 import psycopg2
+import sys
 from config import *
 
 class Processor(multiprocessing.Process):
@@ -135,7 +136,8 @@ class Task(object):
       self.update_matrix(degree, direction, self.year, "gaps" + threshold, len(gaps), connection, cursor)
 
     # Indicate with year/direction/degree combo was completed
-    print str(year) + " " + direction + str(degree)
+    sys.stdout.write('%s %s\r' % (year, direction + str(degree)))
+    sys.stdout.flush()
 
 
   def update_matrix(self, degree, direction, year, table, data, connection, cursor):
