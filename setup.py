@@ -1,12 +1,18 @@
-# Step 0 creates the base tables, including GPlates geometry and the graticule
+# Sets up the database for processing
 
 import os
 import sys
 import psycopg2
+from config import *
+
+# Create the database 'alice' and some tables
+os.system("psql --set 'user='" + user_name + " -p " + str(port_no) + " -U " + user_name + " -f alice.sql")
+
+
 
 # Connect to the database
 try:
-  conn = psycopg2.connect(dbname="alice", user=os.environ["DB_USER"], host=os.environ["DB_HOST"], port=os.environ["DB_PORT"])
+  conn = psycopg2.connect(dbname="alice", user=user_name, host=host_name, port=port_no)
 except:
   print "Could not connect to database: ", sys.exc_info()[1]
   sys.exit()
@@ -48,7 +54,7 @@ def create_lookup():
 i = 0
 while i < 551:
   shapefileName = "reconstructed_" + str(i) + ".00Ma.shp"
-  os.system("shp2pgsql -s 4326 polygons_550_to_0Ma/Phanerozoic_EarthByte_ContinentalRegions/" + shapefileName + " public." + shapefileName.split(".")[0] + " | psql -h " + str(os.environ["DB_HOST"]) + " -U " + str(os.environ["DB_USER"]) + " -d alice -p " + str(os.environ["DB_PORT"]))
+  os.system("shp2pgsql -s 4326 polygons_550_to_0Ma/Phanerozoic_EarthByte_ContinentalRegions/" + shapefileName + " public." + shapefileName.split(".")[0] + " | psql -h " + host_name + " -U " + user_name + " -d alice -p " + str(port_no))
   i += 1
 
 print "Done loading GPlates geometry"

@@ -1,9 +1,9 @@
 #Alice
 
 ## Setup
-1. Edit ````setup.sh```` with your desired Postgres username, port, and host
+1. Edit ````config.py```` with your Postgres username, port, and host
 
-2. Run ````./setup.sh````. This will create a Postgres database ````alice```` and populate it with all the tables necessary for the analysis. It will take a while to run.
+2. Run ````python setup.py````. This will create a Postgres database ````alice```` and populate it with all the tables necessary for the analysis. It will take a while to run.
 
 3. Run ````python collect.py -t lengths -l lat````. This populates the table ````length_year_matrix_lat````, and creates multiple processes in an attempt to fill the table as quickly as possible. If you prefer to populate the table with a single process, you can use ````get_lengths.py````.
 

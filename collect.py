@@ -29,9 +29,15 @@ if __name__ == '__main__':
   # Set the range to whatever year you want to go up to (551 is the max)
   for i in xrange(551):
     if arguments.type == "gaps":
-      tasks.put(Task("SELECT n89 FROM gaps250_" + arguments.ll + " WHERE year = ", i, "gaps", arguments.ll))
+      if arguments.ll == "lat":
+        tasks.put(Task("SELECT n89 FROM gaps250_" + arguments.ll + " WHERE year = ", i, "gaps", arguments.ll))
+      else:
+        tasks.put(Task("SELECT e180 FROM gaps250_" + arguments.ll + " WHERE year = ", i, "gaps", arguments.ll))
     else:
-      tasks.put(Task("SELECT n89 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
+      if arguments.ll == "lat":
+        tasks.put(Task("SELECT n89 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
+      else:
+        tasks.put(Task("SELECT e180 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
 
   for i in range(num_processors):
     tasks.put(None)

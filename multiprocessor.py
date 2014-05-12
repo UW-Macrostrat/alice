@@ -72,11 +72,11 @@ class Task(object):
 
           degree -= 1
 
-      # Populate the equator]
+      # Populate the equator
       if self.type == "lengths":
-        self.get_length_data(0, 'x', self.year, pyConn, pyCursor1, self.ll)
+        self.get_length_data(0, 'x' + self.ll, self.year, pyConn, pyCursor1, self.ll)
       else:
-        self.get_gap_data(0, 'x', self.year, pyConn, pyCursor1, self.ll)
+        self.get_gap_data(0, 'x' + self.ll, self.year, pyConn, pyCursor1, self.ll)
 
       print "---- Done with year " + str(self.year) + " ----"
   
@@ -106,7 +106,8 @@ class Task(object):
     self.update_matrix(degree, direction, year, "length_year_matrix_" + ll, total_length, connection, cursor)
 
     # Indicate with year/direction/degree combo was completed
-    print str(year) + " " + direction + str(degree)
+    sys.stdout.write('%s %s\r' % (year, direction + str(degree)))
+    sys.stdout.flush()
   
   # Method for getting gap data
   def get_gap_data(self, degree, direction, year, connection, cursor, ll):
