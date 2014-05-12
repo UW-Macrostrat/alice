@@ -10,6 +10,10 @@ parser.add_argument("-t", "--type", dest="type",
   default="lengths", type=str, required=True,
   help="Type of data to collect. Can be either 'lengths' or 'gaps'.")
 
+parser.add_argument("-ll", "--latlng", dest="ll",
+  default="lat", type=str, required=True,
+  help="Use either latitude or longitude. Can be either 'lat' or 'lng'.")
+
 arguments = parser.parse_args()
 
 if __name__ == '__main__':
@@ -25,9 +29,9 @@ if __name__ == '__main__':
   # Set the range to whatever year you want to go up to (551 is the max)
   for i in xrange(551):
     if arguments.type == "gaps":
-      tasks.put(Task("SELECT n89 FROM gaps250 WHERE year = ", i, "gaps"))
+      tasks.put(Task("SELECT n89 FROM gaps250_" + arguments.ll + " WHERE year = ", i, "gaps", arguments.ll))
     else:
-      tasks.put(Task("SELECT n89 FROM length_year_matrix WHERE year = ", i, "lengths"))
+      tasks.put(Task("SELECT n89 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
 
   for i in range(num_processors):
     tasks.put(None)

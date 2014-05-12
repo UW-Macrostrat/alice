@@ -30,10 +30,11 @@ class Processor(multiprocessing.Process):
 
 class Task(object):
   # Assign check and year when initialized
-  def __init__(self, check, year, type):
+  def __init__(self, check, year, type, ll):
     self.check = check
     self.year = year
     self.type = type
+    self.ll = ll
 
   # Acts as the controller for a given year
   def __call__(self, connection=None):
@@ -53,33 +54,41 @@ class Task(object):
       degree = 89
       while degree > 0:
         if self.type == "lengths":
-          self.get_length_data(degree, 'n', self.year, pyConn, pyCursor1)
-          self.get_length_data(degree, 's', self.year, pyConn, pyCursor1)
+          if self.ll == "lat":
+            self.get_length_data(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
+            self.get_length_data(degree, 's', self.year, pyConn, pyCursor1, self.ll)
+          else:
+            self.get_length_data(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
+            self.get_length_data(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
 
           degree -= 1
         else:
-          self.get_gap_data(degree, 'n', self.year, pyConn, pyCursor1)
-          self.get_gap_data(degree, 's', self.year, pyConn, pyCursor1)
+          if self.ll == "lat":
+            self.get_gap_data(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
+            self.get_gap_data(degree, 's', self.year, pyConn, pyCursor1, self.ll)
+          else:
+            self.get_gap_data(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
+            self.get_gap_data(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
 
           degree -= 1
 
       # Populate the equator]
       if self.type == "lengths":
-        self.get_length_data(0, 'x', self.year, pyConn, pyCursor1)
+        self.get_length_data(0, 'x', self.year, pyConn, pyCursor1, self.ll)
       else:
-        self.get_gap_data(0, 'x', self.year, pyConn, pyCursor1)
+        self.get_gap_data(0, 'x', self.year, pyConn, pyCursor1, self.ll)
 
       print "---- Done with year " + str(self.year) + " ----"
   
   # Method for getting length
-  def get_length_data(self, degree, direction, year, connection, cursor):
+  def get_length_data(self, degree, direction, year, connection, cursor, ll):
     length_query = """
       SELECT SUM(length) AS sum FROM (
         SELECT ST_Length_Spheroid(
           ST_Intersection(
-            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), reconstructed_""" + str(year) + """_fixed.geom
+            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), reconstructed_""" + str(year) + """_merged.geom
           ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
-        )/1000 length FROM reconstructed_""" + str(year) + """_fixed
+        )/1000 length FROM reconstructed_""" + str(year) + """_merged
       ) giantSelect
       WHERE length > 0
     """
@@ -94,18 +103,18 @@ class Task(object):
       total_length = 0
 
     # Store the length
-    self.update_matrix(degree, direction, year, "length_year_matrix", total_length, connection, cursor)
+    self.update_matrix(degree, direction, year, "length_year_matrix_" + ll, total_length, connection, cursor)
 
     # Indicate with year/direction/degree combo was completed
     print str(year) + " " + direction + str(degree)
   
   # Method for getting gap data
-  def get_gap_data(self, degree, direction, year, connection, cursor):
+  def get_gap_data(self, degree, direction, year, connection, cursor, ll):
     get_gap_lengths = """
       SELECT ST_Length_Spheroid(geometry, 'SPHEROID["GRS_1980",6378137,298.257222101]')/1000 AS gap_length FROM (
         SELECT (ST_Dump(
             (SELECT ST_DIFFERENCE((SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), ST_UNION(ST_Buffer(geom, 0.0000001))) 
-          FROM reconstructed_""" + str(self.year) + """_fixed)
+          FROM reconstructed_""" + str(self.year) + """_merged)
         )).geom AS geometry
       ) giantselect
     """
@@ -133,12 +142,12 @@ class Task(object):
 
     # Record the gap counts
     for threshold, gaps in counts.iteritems():
-      self.update_matrix(degree, direction, self.year, "gaps" + threshold, len(gaps), connection, cursor)
+      self.update_matrix(degree, direction, self.year, "gaps" + threshold + "_" + ll, len(gaps), connection, cursor)
 
     # Indicate with year/direction/degree combo was completed
     sys.stdout.write('%s %s\r' % (year, direction + str(degree)))
     sys.stdout.flush()
-
+  
 
   def update_matrix(self, degree, direction, year, table, data, connection, cursor):
     cursor.execute("UPDATE " + str(table) + " SET " + str(direction) + str(degree) + " = " + str(data) + " WHERE year = " + str(year))
