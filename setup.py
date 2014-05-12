@@ -9,7 +9,6 @@ from config import *
 os.system("psql --set 'user='" + user_name + " -p " + str(port_no) + " -U " + user_name + " -f alice.sql")
 
 
-
 # Connect to the database
 try:
   conn = psycopg2.connect(dbname="alice", user=user_name, host=host_name, port=port_no)

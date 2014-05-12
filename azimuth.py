@@ -1,18 +1,7 @@
 import os
 import sys
 import psycopg2
-import argparse
 from config import *
-
-parser = argparse.ArgumentParser(
-  description="Populate the result matrices of Alice",
-  epilog="Example usage: python collect.py -t gaps")
-
-parser.add_argument("-ll", "--latlng", dest="ll",
-  default="lat", type=str, required=True,
-  help="Use either latitude or longitude. Can be either 'lat' or 'lng'.")
-
-arguments = parser.parse_args()
 
 # Connect to the database
 try:
@@ -37,17 +26,17 @@ def get_line(year, platea, plateb):
   cur.execute(query)
   results = cur.fetchall()
 
-  cur.execute("INSERT INTO distance_azimuth_matrix_" + arguments.ll + "(platea, plateb, year, shortest_line) VALUES(" + str(platea) + ", " + str(plateb) + ", " + str(year) + ", ST_GeomFromText('" + results[0][0] + "'))")
+  cur.execute("INSERT INTO distance_azimuth_matrix (platea, plateb, year, shortest_line) VALUES(" + str(platea) + ", " + str(plateb) + ", " + str(year) + ", ST_GeomFromText('" + results[0][0] + "'))")
   conn.commit()
 
 
 def get_lengths(year):
-  cur.execute("SELECT id FROM distance_azimuth_matrix_" + arguments.ll + " WHERE year = " + str(year))
+  cur.execute("SELECT id FROM distance_azimuth_matrix  WHERE year = " + str(year))
   plateids = cur.fetchall()
 
   for plate in plateids:
     query = """
-      UPDATE distance_azimuth_matrix_lat SET distance = (
+      UPDATE distance_azimuth_matrix SET distance = (
         SELECT ST_Length_Spheroid(
           (SELECT shortest_line FROM distance_azimuth_matrix_lat WHERE id = """ + str(plate[0]) + """),
           'SPHEROID["GRS_1980",6378137,298.257222101]'
@@ -60,12 +49,12 @@ def get_lengths(year):
   print "Done with lengths for " + str(year)
 
 def get_directions(year):
-  cur.execute("SELECT id FROM distance_azimuth_matrix_" + arguments.ll + " WHERE year = " + str(year))
+  cur.execute("SELECT id FROM distance_azimuth_matrix WHERE year = " + str(year))
   plateids = cur.fetchall()
 
   for plate in plateids:
     query = """
-      UPDATE distance_azimuth_matrix_lat SET direction = (
+      UPDATE distance_azimuth_matrix SET direction = (
        SELECT degrees( 
           ST_Azimuth(
               ST_StartPoint(line.line),
@@ -73,7 +62,7 @@ def get_directions(year):
           )
        ) AS degreesAzimuth
        FROM (
-         SELECT shortest_line as line FROM distance_azimuth_matrix_lat WHERE id = """ + str(plate[0]) + """
+         SELECT shortest_line as line FROM distance_azimuth_matrix WHERE id = """ + str(plate[0]) + """
        ) line
       ) WHERE id = """ + str(plate[0])
     
