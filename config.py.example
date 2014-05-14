@@ -1,0 +1,11 @@
+# Database credentials
+user_name = 'your_user_name'
+port_no = 5432
+host_name = 'localhost'
+
+mysql_host = "localhost"
+mysql_user = "your_user_name"
+mysql_passwd = "your_password"
+mysql_db = "pbdb"
+# If using MariaDB, uncomment this
+#mysql_unix_socket = "/var/tmp/mariadb.sock"

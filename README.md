@@ -26,6 +26,8 @@
 
 | Tables        | Description              | Populate  |
 | ------------- | --------------------------- | ------------ |
+| reconstructed_x_merged            |  Contains the reconstucted geometry for each year     | *populated at start* |
+| ne_50m_graticules_1                  | 1 degree graticule from Natural Earth Data                 | *populated at start* |
 | distance_azimuth_matrix            | Indicates shortest line, length of shortest line, and azimuth of shortest line between all plate pairs across all years |  ````python azimuth.py```` & ````python jaccard.py````  |
 | gaps250_lat                                 | Number of gaps > 250km between plates at each line of latitude     |    ````collect.py -t gaps -l lat````  | 
 | gaps250_lng 				    | Number of gaps > 250km between plates at each line of longitude        |    ````collect.py -t gaps -l lng````  |
