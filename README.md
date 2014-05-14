@@ -1,7 +1,15 @@
 #Alice
 
+## Dependencies
+- Python 2.7+
+- PostgreSQL 9.3+ and PostGIS 2.0+
+- psycopg2 - ````sudo port install py27-psycopg2````
+- (*Optional for step 8* ) MySQLdb - refer [here](https://gist.github.com/jczaplew/4bf9adc21305bc4efee1) for installation instructions on Mavericks
+
+
+
 ## Setup
-1. Edit ````config.py```` with your Postgres username, port, and host, as well as MySQL credentials, if applicable (only needed for Step 8, and requires a local dump of the [Paleobiology Database](http://paleobiodb.org)).
+1. Edit ````config.py.example```` with your Postgres username, port, and host, as well as MySQL credentials, if applicable (only needed for Step 8). Rename to or save as ````config.py````.
 
 2. Run ````python setup.py````. This will create a Postgres database ````alice```` and populate it with all the tables necessary for the analysis. It will take a while to run.
 
@@ -13,7 +21,7 @@
 
 5. Run ````python azimuth.py````. This populates the first half of table ````distance_azimuth_matrix````, including the fields ````platea````, ````plateb````, ````shortest_line````,  ````distance````, and ````direction````.
 
-6. (***Optional **- requires a local dump of the Paleobiology Database*) - Run ````python jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````platea_genera````, ````plateb_genera````,  ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
+6. (***Optional **- requires a local dump of the [Paleobiology Database](http://paleobiodb.org)*) - Run ````python jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````platea_genera````, ````plateb_genera````,  ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
 
 
 | Tables        | Description              | Populate  |
