@@ -38,7 +38,7 @@ def get_lengths(year):
     query = """
       UPDATE distance_azimuth_matrix SET distance = (
         SELECT ST_Length_Spheroid(
-          (SELECT shortest_line FROM distance_azimuth_matrix_lat WHERE id = """ + str(plate[0]) + """),
+          (SELECT shortest_line FROM distance_azimuth_matrix WHERE id = """ + str(plate[0]) + """),
           'SPHEROID["GRS_1980",6378137,298.257222101]'
         )/1000
       ) WHERE id = """ + str(plate[0])

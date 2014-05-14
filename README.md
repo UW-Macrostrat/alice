@@ -1,7 +1,7 @@
 #Alice
 
 ## Setup
-1. Edit ````config.py```` with your Postgres username, port, and host
+1. Edit ````config.py```` with your Postgres username, port, and host, as well as MySQL credentials, if applicable (only needed for Step 8, and requires a local dump of the [Paleobiology Database](http://paleobiodb.org)).
 
 2. Run ````python setup.py````. This will create a Postgres database ````alice```` and populate it with all the tables necessary for the analysis. It will take a while to run.
 
@@ -11,12 +11,14 @@
 5. Run ````python collect.py -t gaps -l lat````. This populates the tables ````gaps250_lat````, ````gaps500_lat````, ````gaps1000_lat````, and ````gaps1500_lat````. Again, this creates multiple processes, and you can use ````get_gaps.py```` instead if you want to use a single process.
 6. Run ````python collect -t gaps -l lng```` to populate the tables ````gaps250_lng````, ````gaps500_lng````, ````gaps1000_lng````, and ````gaps1500_lng````.
 
-5. Run ````python azimuth.py -l lat````. This populates the table ````distance_azimuth_matrix_lat````.
+5. Run ````python azimuth.py````. This populates the first half of table ````distance_azimuth_matrix````, including the fields ````platea````, ````plateb````, ````shortest_line````,  ````distance````, and ````direction````.
+
+6. (***Optional **- requires a local dump of the Paleobiology Database*) - Run ````python jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````platea_genera````, ````plateb_genera````,  ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
 
 
 | Tables        | Description              | Populate  |
-| ------------- |:---------------------------:| ------------:|
-| distance_azimuth_matrix            | Indicates shortest line, length of shortest line, and azimuth of shortest line between all plate pairs across all years |  ````azimuth.py -l lat````  |
+| ------------- | --------------------------- | ------------ |
+| distance_azimuth_matrix            | Indicates shortest line, length of shortest line, and azimuth of shortest line between all plate pairs across all years |  ````python azimuth.py```` & ````python jaccard.py````  |
 | gaps250_lat                                 | Number of gaps > 250km between plates at each line of latitude     |    ````collect.py -t gaps -l lat````  | 
 | gaps250_lng 				    | Number of gaps > 250km between plates at each line of longitude        |    ````collect.py -t gaps -l lng````  |
 | gaps500_lat  				    | Number of gaps > 500km between plates at each line of latitude    |    ````collect.py -t gaps -l lat````  |

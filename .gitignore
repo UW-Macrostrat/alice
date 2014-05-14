@@ -7,11 +7,13 @@ lib-cov
 *.gz
 *.pyc
 
-
+_*
 notes.md
 test*
+dump*
 
 polygons_550_to_0Ma
+MySQLdb_Mavericks.md
 
 
 .DS_Store
