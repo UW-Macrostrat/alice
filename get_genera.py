@@ -1,18 +1,21 @@
 '''
-CREATE EXTENSION intarray;
+Make sure this is run first
 
 CREATE TABLE plate_genera (
   id SERIAL PRIMARY KEY,
   plateid       int,
   year          int,
-  genera        text[],
+  genera        int[],
   genera_count  int
-)
+);
+
 '''
 import os
 import sys
 import psycopg2
 import MySQLdb
+import urllib2
+import json
 from config import *
 
 # Connect to the database
@@ -33,8 +36,11 @@ except:
 
 # Cursor for MySQL
 mysql_cur = mysql_conn.cursor()
+print mysql_cur
 
 def get_genera(year):
+  print "Working on ", year
+
   cur.execute("""
     SELECT DISTINCT plateid FROM reconstructed_""" + str(year) + """_merged
   """)
@@ -46,35 +52,53 @@ def get_genera(year):
   for plate in distinct_plates:
     mysql_cur.execute("""
 
-      SELECT distinct genus_name c 
-      FROM occ_matrix 
-        JOIN paleocoords USING (collection_no) 
-      WHERE plate_no= """ + str(plate[0]) + """ 
-        AND paleocoords.early_age>= """ + str(year) + """ 
-        AND paleocoords.late_age<= """ + str(year) + """
+      SELECT DISTINCT t.orig_no 
+      FROM taxon_trees AS t 
+        JOIN occ_matrix AS o USING (orig_no) 
+        JOIN paleocoords AS pc USING (collection_no) 
+          WHERE plate_no = %(plate)s 
+          AND pc.early_age >= %(year)s
+          AND pc.late_age <= %(year)s 
+          AND rank = 5
 
-    """)
+    """, {
+          "plate": plate[0], 
+          "year" : year
+         }
+    )
 
     plate_genera = mysql_cur.fetchall()
 
-    #genera_string = "{"
-    genera = []
+    print "Got plate genera for plate " + str(plate[0]) + " in year " + str(year)
 
+    # Convert the results to a single dimensional python list
+    genera = []
     for genus in plate_genera:
       genera.append(genus[0])
-      #genera_string += genus[0] + ", "
-
-    #if len(genera_string) > 1:
-    #  genera_string = genera_string[:-2]
-    #genera_string += "}"
-
-    #print genera_string
 
     cur.execute("INSERT INTO plate_genera (plateid, year, genera) VALUES( %s, %s, %s)", (plate[0], year, genera))
 
     conn.commit()
 
+# Get stage midpoints
+midpoints = []
+time_data = json.load(urllib2.urlopen('http://paleobiodb.org/data1.1/intervals/list.json?scale=1&order=older&max_ma=4000'))
+for interval in time_data['records']:
+  if interval['lvl'] == 5:
+    midpoint = int((interval['lag'] + interval['eag'])/2)
+    if midpoint not in midpoints:
+      midpoints.append(midpoint)
 
+print "Got midpoints"
+
+# Iterate over each year
 for year in xrange(0, 551):
+#for year in midpoints:
+  #if year not in midpoints:
   get_genera(year)
   print "----- Done with year " + str(year) + " ------"
+
+# Finish up by filling the field `genera_count`
+cur.execute("UPDATE plate_genera SET genera_count = array_length(genera, 1)")
+conn.commit()
+print "Done!"
