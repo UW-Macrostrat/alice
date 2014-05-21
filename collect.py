@@ -20,7 +20,7 @@ if __name__ == '__main__':
   tasks = multiprocessing.JoinableQueue()
   results = multiprocessing.Queue()
 
-  num_processors = multiprocessing.cpu_count() - 2
+  num_processors = multiprocessing.cpu_count() - cpus_free
   processors = [Processor(tasks, results) for i in xrange(num_processors)]
 
   for each in processors:

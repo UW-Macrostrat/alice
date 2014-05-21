@@ -1,4 +1,4 @@
-# Database credentials
+# -- Database credentials -- #
 user_name = 'your_user_name'
 port_no = 5432
 host_name = 'localhost'
@@ -9,3 +9,11 @@ mysql_passwd = "your_password"
 mysql_db = "pbdb"
 # If using MariaDB, uncomment this
 #mysql_unix_socket = "/var/tmp/mariadb.sock"
+
+# --- Multiprocessing config -- #
+'''
+Many scripts use as many CPUs as possible to speed up processing.
+If you are using the same machine for other tasks, it is best to 
+make sure there is still at least one CPU free
+''' 
+cpus_free = 2

@@ -80,7 +80,8 @@ def get_genera(year):
 
     conn.commit()
 
-# Get stage midpoints
+# Get stage midpoints, if applicable
+'''
 midpoints = []
 time_data = json.load(urllib2.urlopen('http://paleobiodb.org/data1.1/intervals/list.json?scale=1&order=older&max_ma=4000'))
 for interval in time_data['records']:
@@ -88,13 +89,11 @@ for interval in time_data['records']:
     midpoint = int((interval['lag'] + interval['eag'])/2)
     if midpoint not in midpoints:
       midpoints.append(midpoint)
-
-print "Got midpoints"
+'''
 
 # Iterate over each year
 for year in xrange(0, 551):
 #for year in midpoints:
-  #if year not in midpoints:
   get_genera(year)
   print "----- Done with year " + str(year) + " ------"
 
