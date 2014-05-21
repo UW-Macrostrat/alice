@@ -83,3 +83,7 @@ for year in xrange(0, 551):
   get_directions(year)
   print "Done with year " + str(year)
 
+# Create an index on year in `distance_azimuth_matrix`
+cur.execute("CREATE INDEX year_index ON distance_azimuth_matrix(year)")
+conn.commit()
+
