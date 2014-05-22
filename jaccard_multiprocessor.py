@@ -54,7 +54,7 @@ class Task(object):
 
 
   def get_jaccard(self, year, pyConn, cursor):
-    cursor.execute("SELECT platea, plateb FROM distance_azimuth_matrix WHERE year = " + str(year))
+    cursor.execute("SELECT platea, plateb FROM distance_azimuth_matrix WHERE year = %s", [year])
     pairs = cursor.fetchall()
     for index, pair in enumerate(pairs):
 

@@ -3,6 +3,7 @@ user_name = "your_user_name"
 port_no = 5432
 host_name = "localhost"
 
+# Optional MySQL credentials
 mysql_host = "localhost"
 mysql_user = "your_user_name"
 mysql_passwd = "your_password"

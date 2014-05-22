@@ -1,17 +1,3 @@
-'''
-Make sure this is run first
-
-CREATE TABLE centroid_matrix (
-  id SERIAL PRIMARY KEY,
-  plateid            int,
-  year               int,
-  distance_equator   numeric,
-  distance_meridian  numeric
-);
-
-COMMENT ON TABLE centroid_matrix IS 'Distances expressed in kilometers';
-
-'''
 import os
 import sys
 import psycopg2
@@ -28,7 +14,8 @@ except:
 cur = conn.cursor()
 
 def get_distance(year):
-  # Get distance from equator
+  # Get distance from equator and prime meridian
+  '''
   cur.execute("""
     INSERT INTO centroid_matrix (year, plateid, distance_equator, distance_meridian) 
       (SELECT %s AS year, plateid, ST_Distance_Spheroid(
@@ -43,6 +30,12 @@ def get_distance(year):
       )/1000 AS distance_meridian FROM reconstructed_""" + str(year) + """_merged
     )
   """, [year])
+'''
+  cur.execute("""
+    INSERT INTO centroid_matrix (year, plateid, distance_equator, distance_meridian) 
+      (SELECT %s AS year, plateid, ST_Y((ST_Centroid(geom))), ST_X((ST_Centroid(geom)))
+      FROM reconstructed_""" + str(year) + """_merged)
+  """, [year])
 
   conn.commit()
 
@@ -50,4 +43,3 @@ def get_distance(year):
 for year in xrange(0, 551):
   get_distance(year)
   print "----- Done with year " + str(year) + " ------"
-  

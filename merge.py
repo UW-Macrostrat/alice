@@ -13,9 +13,9 @@ except:
 # Create a cursor for executing queries
 cur = conn.cursor()
 
-year = 200
-
 def find_groups(year):
+  print "Processing year ", year
+
   # This keeps track of the groups found
   groups = []
 
@@ -27,10 +27,10 @@ def find_groups(year):
 
     SELECT DISTINCT platea 
     FROM distance_azimuth_matrix 
-    WHERE year = """ + str(year) + """
+    WHERE year = %s
     ORDER BY platea ASC
     
-  """)
+  """, [year])
 
   plates = cur.fetchall()
 
@@ -61,10 +61,10 @@ def find_groups(year):
 
         SELECT plateb
         FROM distance_azimuth_matrix
-        WHERE year = """ + str(year) + """ AND distance <= 30 AND platea = """ + str(plate[0]) + """
+        WHERE year = %s AND distance <= 30 AND platea = %s
         ORDER BY plateb DESC
 
-      """)
+      """, [year, plate[0]])
 
       touches = cur.fetchall()
 
@@ -84,10 +84,10 @@ def find_groups(year):
 
             SELECT plateb
             FROM distance_azimuth_matrix
-            WHERE year = """ + str(year) + """ AND distance <= 30 AND platea = """ + str(to_check[0]) + """
+            WHERE year = %s AND distance <= 30 AND platea = %s
             ORDER BY plateb DESC
 
-          """)
+          """, [year, to_check[0]])
 
           to_check_touches = cur.fetchall()
 
@@ -109,3 +109,8 @@ def find_groups(year):
 
   print groups
   print len(groups), " groups found"
+
+
+## Process - change to however many years need to be processed
+for year in xrange(0, 1):
+  find_groups(year)

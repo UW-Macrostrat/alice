@@ -14,46 +14,49 @@ except:
 cur = conn.cursor()
 
 def get_line(year, platea, plateb):
-  query = """
-    SELECT ST_AsText(
-      ST_ShortestLine(
-          (select geom from reconstructed_""" + str(year) + """_merged WHERE plateid = """ + str(platea) + """),
-          (select geom from reconstructed_""" + str(year) + """_merged WHERE  plateid = """ + str(plateb) + """)
-      )
-    ) AS line
-  """
 
-  cur.execute(query)
-  results = cur.fetchall()
-
-  cur.execute("INSERT INTO distance_azimuth_matrix (platea, plateb, year, shortest_line) VALUES(" + str(platea) + ", " + str(plateb) + ", " + str(year) + ", ST_GeomFromText('" + results[0][0] + "'))")
+  cur.execute("""
+    INSERT INTO distance_azimuth_matrix (platea, plateb, year, shortest_line) (
+      SELECT %(platea)s AS platea, %(plateb)s AS plateb, %(year)s AS year, ST_GeomFromText(
+        ST_AsText(
+          ST_ShortestLine(
+              (select geom from reconstructed_""" + str(year) + """_merged WHERE plateid = %(platea)s),
+              (select geom from reconstructed_""" + str(year) + """_merged WHERE  plateid = %(plateb)s)
+          )
+        )
+      ) AS shortest_line
+    )
+  """, {
+    "platea": platea,
+    "plateb": plateb,
+    "year"  : year
+  })
   conn.commit()
 
 
 def get_lengths(year):
-  cur.execute("SELECT id FROM distance_azimuth_matrix  WHERE year = " + str(year))
+  cur.execute("SELECT id FROM distance_azimuth_matrix  WHERE year = %s", [year])
   plateids = cur.fetchall()
 
   for plate in plateids:
-    query = """
+    cur.execute( """
       UPDATE distance_azimuth_matrix SET distance = (
         SELECT ST_Length_Spheroid(
-          (SELECT shortest_line FROM distance_azimuth_matrix WHERE id = """ + str(plate[0]) + """),
+          (SELECT shortest_line FROM distance_azimuth_matrix WHERE id = %(plate)s),
           'SPHEROID["GRS_1980",6378137,298.257222101]'
         )/1000
-      ) WHERE id = """ + str(plate[0])
-    
-    cur.execute(query)
+      ) WHERE id = %(plate)s""", {"plate": plate[0]})
     conn.commit()
   
   print "Done with lengths for " + str(year)
 
 def get_directions(year):
-  cur.execute("SELECT id FROM distance_azimuth_matrix WHERE year = " + str(year))
+  cur.execute("SELECT id FROM distance_azimuth_matrix WHERE year = %s", [year])
   plateids = cur.fetchall()
 
   for plate in plateids:
-    query = """
+    
+    cur.execute("""
       UPDATE distance_azimuth_matrix SET direction = (
        SELECT degrees( 
           ST_Azimuth(
@@ -62,11 +65,9 @@ def get_directions(year):
           )
        ) AS degreesAzimuth
        FROM (
-         SELECT shortest_line as line FROM distance_azimuth_matrix WHERE id = """ + str(plate[0]) + """
+         SELECT shortest_line as line FROM distance_azimuth_matrix WHERE id = %(plate)s
        ) line
-      ) WHERE id = """ + str(plate[0])
-    
-    cur.execute(query)
+      ) WHERE id = %(plate)s""", {"plate": plate[0]})
     conn.commit()
   
   print "Done with directions for year " + str(year)
@@ -86,4 +87,3 @@ for year in xrange(0, 551):
 # Create an index on year in `distance_azimuth_matrix`
 cur.execute("CREATE INDEX year_index ON distance_azimuth_matrix(year)")
 conn.commit()
-

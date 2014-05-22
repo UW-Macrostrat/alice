@@ -122,11 +122,4 @@ while z < 551:
   except NameError as e:
     print e
 
-'''
-alter table distance_azimuth_matrix ADD COLUMN platea_genera integer;
-alter table distance_azimuth_matrix ADD COLUMN plateb_genera integer;
-alter table distance_azimuth_matrix ADD COLUMN uunion integer;
-alter table distance_azimuth_matrix ADD COLUMN intersection integer;
-
-'''
 print "GPlates cleanup done"

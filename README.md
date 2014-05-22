@@ -4,7 +4,7 @@
 - Python 2.7+
 - PostgreSQL 9.3+ and PostGIS 2.0+
 - psycopg2 - ````sudo port install py27-psycopg2````
-- (*Optional for step 8* ) MySQLdb - refer [here](https://gist.github.com/jczaplew/4bf9adc21305bc4efee1) for installation instructions on Mavericks
+- MySQLdb (*Optional for step 8* ) - refer [here](https://gist.github.com/jczaplew/4bf9adc21305bc4efee1) for installation instructions on Mavericks
 
 
 
@@ -40,4 +40,4 @@
 | length_year_matrix_lng  	           | Amount of land at each line of longitude over time      |    ````collect.py -t lengths -l lng````  |
 | name_lookup  				    | Lookup plate names by id     |    *populated at start*  |
 | plate_genera                                | Number of unique genera on a given plate at a given point in time   | ````get_genera.py```` |  
-| centroid_matrix                             | Distance from the centroid of all plates in all years to the equator and prime meridian   | ````centroids.py```` |  
+| centroid_matrix                             | Distance from the centroid of all plates in all years to the equator and prime meridian (in degrees)   | ````centroids.py```` |  

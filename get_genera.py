@@ -1,15 +1,3 @@
-'''
-Make sure this is run first
-
-CREATE TABLE plate_genera (
-  id SERIAL PRIMARY KEY,
-  plateid       int,
-  year          int,
-  genera        int[],
-  genera_count  int
-);
-
-'''
 import os
 import sys
 import psycopg2
