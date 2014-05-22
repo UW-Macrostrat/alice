@@ -23,6 +23,9 @@
 
 5. Run ````python azimuth.py````. This populates the first half of table ````distance_azimuth_matrix````, including the fields ````platea````, ````plateb````, ````shortest_line````,  ````distance````, and ````direction````.
 
+6. Run ````python centroids.py```` to populate the table ````centroid_matrix````. 
+
+
 6. (***Optional **- requires a local dump of the [Paleobiology Database](http://paleobiodb.org)*) - Run ````get_genera.py````, which populates the table ````plate_genera````, followed by ````python get_jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
 
 
@@ -37,3 +40,4 @@
 | length_year_matrix_lng  	           | Amount of land at each line of longitude over time      |    ````collect.py -t lengths -l lng````  |
 | name_lookup  				    | Lookup plate names by id     |    *populated at start*  |
 | plate_genera                                | Number of unique genera on a given plate at a given point in time   | ````get_genera.py```` |  
+| centroid_matrix                             | Distance from the centroid of all plates in all years to the equator and prime meridian   | ````centroids.py```` |  
