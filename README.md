@@ -2,7 +2,7 @@
 
 ## Dependencies
 - Python 2.7+
-- PostgreSQL 9.3+ and PostGIS 2.0+
+- PostgreSQL 9.1+ and PostGIS 2.0+
 - psycopg2 - ````sudo port install py27-psycopg2````
 - MySQLdb (*Optional for step 8* ) - refer [here](https://gist.github.com/jczaplew/4bf9adc21305bc4efee1) for installation instructions on Mavericks
 
