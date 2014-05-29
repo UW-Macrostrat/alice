@@ -11,24 +11,27 @@
 ## Setup
 ***Note: ***  the scripts ````collect.py```` and ````get_jaccard.py```` use the Python module [Multiprocessing](https://docs.python.org/2/library/multiprocessing.html), which leverages all available CPUs for a faster processing time. The config param ````cpus_free```` has a default value of 2, meaning 2 CPUs will remain free for any other tasks on the same machine. If you desire more or less to remain free, please change the default value in ````config.py````.
 
+***^*** indicates that this step takes a considerable amount of time to complete
+
 1. Edit ````config.py.example```` with your Postgres username, port, and host, as well as MySQL credentials, if applicable (only needed for Step 8). Rename to or save as ````config.py````.
 
 2. Run ````python setup.py````. This will create a Postgres database ````alice```` and populate it with all the tables necessary for the analysis. It will take a while to run.
 
-3. Run ````python collect.py -t lengths -l lat````. This populates the table ````length_year_matrix_lat````, and creates multiple processes in an attempt to fill the table as quickly as possible. 
+3. Run ````python areas.py```` to populate the table ````areas```` and the column ````area```` of the table````name_lookup````.  
 
-4. Run ````python collect.py -t gaps -l lat````. This populates the tables ````gaps250_lat````, ````gaps500_lat````, ````gaps1000_lat````, and ````gaps1500_lat````. 
+4. Run ````python centroids.py```` to populate the table ````centroid_matrix````.
 
-5. Run ````python collect -t gaps -l lng```` to populate the tables ````gaps250_lng````, ````gaps500_lng````, ````gaps1000_lng````, and ````gaps1500_lng````.
+3. ***^***  Run ````python collect.py -t lengths -l lat````. This populates the table ````length_year_matrix_lat````, and creates multiple processes in an attempt to fill the table as quickly as possible. 
 
-6. Run ````python azimuth.py````. This populates the first half of table ````distance_azimuth_matrix````, including the fields ````platea````, ````plateb````, ````shortest_line````,  ````distance````, and ````direction````.
+4.  ***^*** Run ````python collect.py -t gaps -l lat````. This populates the tables ````gaps250_lat````, ````gaps500_lat````, ````gaps1000_lat````, and ````gaps1500_lat````. 
 
-7. Run ````python centroids.py```` to populate the table ````centroid_matrix````.
+5.  ***^*** Run ````python collect -t gaps -l lng```` to populate the tables ````gaps250_lng````, ````gaps500_lng````, ````gaps1000_lng````, and ````gaps1500_lng````.
 
-8. Run ````python areas.py```` to populate the table ````areas```` and the ````area```` column of ````name_lookup````.  
+6.  ***^*** Run ````python azimuth.py````. This populates the first half of table ````distance_azimuth_matrix````, including the fields ````platea````, ````plateb````, ````shortest_line````,  ````distance````, and ````direction````.
 
-8. (***Optional **- requires a local dump of the [Paleobiology Database](http://paleobiodb.org)*) - Run ````get_genera.py````, which populates the table ````plate_genera````, followed by ````python get_jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
+8.  ***^*** (***Optional **- requires a local dump of the [Paleobiology Database](http://paleobiodb.org)*) - Run ````get_genera.py````, which populates the table ````plate_genera````, followed by ````python get_jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
 
+## Tables
 
 | Tables        | Description              | Populate  |
 | ------------- | --------------------------- | ------------ |
@@ -42,4 +45,4 @@
 | name_lookup  				    | Lookup plate names by id     |    *populated at start*  |
 | plate_genera                                | Number of unique genera on a given plate at a given point in time   | ````get_genera.py```` |  
 | centroid_matrix                             | Distance from the centroid of all plates in all years to the equator and prime meridian (in degrees)   | ````centroids.py```` |  
-| areas                                             | The area of each plate in each year  | ````areas.py```` |  
+| areas                                             | The area of each plate in square kilometers in each year  | ````areas.py```` |  
