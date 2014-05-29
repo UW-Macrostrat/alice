@@ -19,55 +19,15 @@ except:
 # Create a cursor for executing queries
 cur = conn.cursor()
 
-def create_lookup(): 
-  cur.execute("DROP TABLE IF EXISTS name_lookup")
-  conn.commit()
-  cur.execute(""" 
-    CREATE TABLE name_lookup(
-      plateid     integer,
-      names       text
-    ) 
-  """)
-  conn.commit()
+# Import the shapefiles into PostGIS 
+for year in xrange(0, 551):
+  current = str(year)
+  shapefileName = "reconstructed_" + current + ".00Ma.shp"
 
-  cur.execute("SELECT DISTINCT plateid FROM reconstructed_0_fixed")
-  plateids = cur.fetchall()
+  cur.execute("DROP TABLE IF EXISTS reconstructed_" + current + "_merged")
+  conn.commit() 
 
-  i = 0
-  while i < len(plateids):
-    cur.execute("SELECT name FROM reconstructed_0_fixed WHERE plateid = " + str(plateids[i][0]))
-    plates = cur.fetchall()
-
-    names = []
-    j = 0
-    while j < len(plates):
-      if plates[j][0] not in names:
-        names.append(plates[j][0])
-      j += 1
-
-    cur.execute("INSERT INTO name_lookup VALUES(%(plateid)s, %(names)s)", {"plateid": plateids[i][0], "names": ', '.join(names) })
-    conn.commit()
-    i += 1
-
-  # Add the missing one
-  cur.execute("INSERT INTO name_lookup VALUES(0, 'India Himalaya')")
-  conn.commit()
-
-# Import the shapefiles into PostGIS   
-i = 0
-while i < 551:
-  shapefileName = "reconstructed_" + str(i) + ".00Ma.shp"
   os.system("shp2pgsql -s 4326 polygons_550_to_0Ma/Phanerozoic_EarthByte_ContinentalRegions/" + shapefileName + " public." + shapefileName.split(".")[0] + " | psql -h " + host_name + " -U " + user_name + " -d alice -p " + str(port_no))
-  i += 1
-
-print "Done loading GPlates geometry"
-
-# Create and alter all the GPlates tables
-z = 0
-while z < 551:
-  current = str(z)
-  # Create a cursor for executing queries
-  cur = conn.cursor()
 
   # Process the data
   query = ("ALTER TABLE reconstructed_" + current + " ADD COLUMN oid SERIAL;"
@@ -87,43 +47,24 @@ while z < 551:
   "ALTER TABLE reconstructed_" + current + "_fixed ALTER COLUMN plateid TYPE integer;"
   "DROP TABLE reconstructed_" + current + "_clockwise;"
   "CREATE INDEX g" + current + " ON reconstructed_" + current + "_fixed USING gist (geom);"
-  "DROP TABLE reconstructed_" + current + ";")
-
-  # Process the data
-  try:
-    cur.execute(query)
-    conn.commit()
-    print "Done with " + current
-    z += 1
-  except NameError as e:
-    print e
-
-# Create a name lookup table for use later
-create_lookup()
-
-# Dissolve the geometry on plateid
-z = 0
-while z < 551:
-  current = str(z)
-  # Create a cursor for executing queries
-  cur = conn.cursor()
-  query = (""" 
-    CREATE TABLE reconstructed_""" + current + """_merged AS
+  "DROP TABLE reconstructed_" + current + ";"
+  """CREATE TABLE reconstructed_""" + current + """_merged AS
         SELECT ST_Union(ST_MakeValid(ST_SnapToGrid(geom, 0.0001))) AS geom, plateid
         FROM reconstructed_""" + current + """_fixed
         GROUP BY plateid;
 
     CREATE INDEX in""" + current + """ ON reconstructed_""" + current + """_merged USING gist (geom);
 
-    DROP TABLE reconstructed_""" + current + """_fixed;
-  """)
-
+    DROP TABLE reconstructed_""" + current + """_fixed;"""
+  )
+  
+  # Process the data
   try:
     cur.execute(query)
     conn.commit()
-    print "Created merged " + current
-    z += 1
+    print "Done with " + current
   except NameError as e:
     print e
 
-print "GPlates cleanup done"
+
+print "Done loading and processing GPlates geometry"
