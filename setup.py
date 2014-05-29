@@ -49,6 +49,10 @@ def create_lookup():
     conn.commit()
     i += 1
 
+  # Add the missing one
+  cur.execute("INSERT INTO name_lookup VALUES(0, 'India Himalaya')")
+  conn.commit()
+
 # Import the shapefiles into PostGIS   
 i = 0
 while i < 551:
@@ -105,7 +109,7 @@ while z < 551:
   cur = conn.cursor()
   query = (""" 
     CREATE TABLE reconstructed_""" + current + """_merged AS
-        SELECT ST_Union(ST_Buffer(geom, 0.0000001)) AS geom, plateid
+        SELECT ST_Union(ST_MakeValid(ST_SnapToGrid(geom, 0.0001))) AS geom, plateid
         FROM reconstructed_""" + current + """_fixed
         GROUP BY plateid;
 

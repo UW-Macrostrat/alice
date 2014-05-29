@@ -32,8 +32,8 @@ def get_distance(year):
   """, [year])
 '''
   cur.execute("""
-    INSERT INTO centroid_matrix (year, plateid, distance_equator, distance_meridian) 
-      (SELECT %s AS year, plateid, ST_Y((ST_Centroid(geom))), ST_X((ST_Centroid(geom)))
+    INSERT INTO centroid_matrix (year, plateid, distance_equator, distance_meridian, max_lat, min_lat) 
+      (SELECT %s AS year, plateid, ST_Y((ST_Centroid(geom))), ST_X((ST_Centroid(geom))), ST_ymax(geom) AS max_lat, ST_ymin(geom) AS min_lat
       FROM reconstructed_""" + str(year) + """_merged)
   """, [year])
 
@@ -43,3 +43,11 @@ def get_distance(year):
 for year in xrange(0, 551):
   get_distance(year)
   print "----- Done with year " + str(year) + " ------"
+
+cur.execute("""
+  CREATE INDEX ON centroid_matrix (plateid);
+  CREATE INDEX ON centroid_matrix (year);
+""")
+conn.commit()
+
+print "Done!"

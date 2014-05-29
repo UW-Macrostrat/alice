@@ -85,5 +85,9 @@ for year in xrange(0, 551):
   print "Done with year " + str(year)
 
 # Create an index on year in `distance_azimuth_matrix`
-cur.execute("CREATE INDEX year_index ON distance_azimuth_matrix(year)")
+cur.execute("""
+  CREATE INDEX ON distance_azimuth_matrix(year);
+  CREATE INDEX ON distance_azimuth_matrix(platea);
+  CREATE INDEX ON distance_azimuth_matrix(plateb);
+""")
 conn.commit()
