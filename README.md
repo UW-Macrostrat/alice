@@ -36,7 +36,7 @@
 | Tables        | Description              | Populate  |
 | ------------- | --------------------------- | ------------ |
 | reconstructed_x_merged            |  Contains the reconstucted geometry for each year     | *populated at start* |
-| ne_50m_graticules_1                  | 1 degree graticule from Natural Earth Data                 | *populated at start* |
+| ne_50m_graticules_1                  | 1 degree graticule from [Natural Earth Data](http://www.naturalearthdata.com/downloads/50m-physical-vectors/50m-graticules/)                 | *populated at start* |
 | distance_azimuth_matrix            | Indicates shortest line, length of shortest line, and azimuth of shortest line between all plate pairs across all years |  ````python azimuth.py```` & ````python get_jaccard.py````  |
 | gaps*x*_lat                                  | Number of gaps > *x* km between plates at each line of latitude   |    ````collect.py -t gaps -l lat````  | 
 | gaps*x*_lng                                  | Number of gaps > *x* km between plates at each line of longitude   |    ````collect.py -t gaps -l lng````  | 
@@ -45,4 +45,4 @@
 | name_lookup  				    | Lookup plate names by id     |    *populated at start*  |
 | plate_genera                                | Number of unique genera on a given plate at a given point in time   | ````get_genera.py```` |  
 | centroid_matrix                             | Distance from the centroid of all plates in all years to the equator and prime meridian (in degrees)   | ````centroids.py```` |  
-| areas                                             | The area of each plate in square kilometers in each year  | ````areas.py```` |  
+| areas                                             | The area of each plate in km<sup>2</sup> in each year  | ````areas.py```` |  
