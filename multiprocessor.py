@@ -62,15 +62,26 @@ class Task(object):
             self.get_length_data(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
 
           degree -= 1
-        else:
+        elif self.type == "lengths_mod":
+          if self.ll == "lat":
+            self.get_length_data_mod(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
+            self.get_length_data_mod(degree, 's', self.year, pyConn, pyCursor1, self.ll)
+          else:
+            self.get_length_data_mod(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
+            self.get_length_data_mod(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
+
+          degree -= 1
+        elif self.type == "gaps":
           if self.ll == "lat":
             self.get_gap_data(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
             self.get_gap_data(degree, 's', self.year, pyConn, pyCursor1, self.ll)
           else:
             self.get_gap_data(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
             self.get_gap_data(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
-
           degree -= 1
+        else:
+          print "Invalid type"
+          
 
       # Populate the equator
       if self.type == "lengths":
@@ -181,5 +192,5 @@ class Task(object):
   
 
   def update_matrix(self, degree, direction, year, table, data, connection, cursor):
-    cursor.execute("UPDATE " + str(table) + " SET " + str(direction) + str(degree) + " = " + str(data) + " WHERE year = " + str(year))
+    cursor.execute("UPDATE " + str(table) + " SET " + str(direction) + str(degree) + " = %s WHERE year = %s", [data, year])
     connection.commit()

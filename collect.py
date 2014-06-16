@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("-t", "--type", dest="type",
   default="lengths", type=str, required=True,
-  help="Type of data to collect. Can be either 'lengths' or 'gaps'.")
+  help="Type of data to collect. Can be either 'lengths', 'lengths_mod' or 'gaps'.")
 
 parser.add_argument("-ll", "--latlng", dest="ll",
   default="lat", type=str, required=True,
@@ -38,11 +38,12 @@ if __name__ == '__main__':
         tasks.put(Task("SELECT n89 FROM length_year_matrix_mod_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
       else:
         tasks.put(Task("SELECT e180 FROM length_year_matrix_mod_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
-    else:
+    elif arguments.type == "lengths":
       if arguments.ll == "lat":
         tasks.put(Task("SELECT n89 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
       else:
         tasks.put(Task("SELECT e180 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
-
+    else:
+      print "Invalid argument for type"
   for i in range(num_processors):
     tasks.put(None)
