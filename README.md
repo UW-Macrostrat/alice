@@ -15,7 +15,7 @@
 
 1. Edit ````config.py.example```` with your Postgres username, port, and host, as well as MySQL credentials, if applicable (only needed for Step 8). Rename to or save as ````config.py````.
 
-2. Run ````python setup.py````. This will create a Postgres database ````alice```` and populate it with all the tables necessary for the analysis. It will take a while to run.
+2. Run ````python go_ask.py````. This will create a Postgres database ````alice```` and populate it with all the tables necessary for the analysis. It will take a while to run.
 
 3. Run ````python areas.py```` to populate the table ````areas```` and the column ````area```` of the table````name_lookup````.  
 

@@ -108,7 +108,37 @@ class Task(object):
     # Indicate with year/direction/degree combo was completed
     sys.stdout.write('%s %s\r' % (year, direction + str(degree)))
     sys.stdout.flush()
-  
+
+  # Method for getting length excluding new plates
+  def get_length_data_mod(self, degree, direction, year, connection, cursor, ll):
+    length_query = """
+      SELECT SUM(length) AS sum FROM (
+        SELECT ST_Length_Spheroid(
+          ST_Intersection(
+            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  %s AND direction = %s), SELECT reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
+              (SELECT DISTINCT platea FROM distance_azimuth_matrix WHERE year > 500)
+          ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
+        )/1000 length FROM reconstructed_""" + str(year) + """_merged
+      ) giantSelect
+      WHERE length > 0
+    """
+
+    cursor.execute(length_query, [degree, direction.upper()])
+    lengths = cursor.fetchall()
+
+    # If something is returned, use that, otherwise default to zero
+    if lengths[0][0] is not None:
+      total_length = lengths[0][0]
+    else:
+      total_length = 0
+
+    # Store the length
+    self.update_matrix(degree, direction, year, "length_year_matrix_mod_" + ll, total_length, connection, cursor)
+
+    # Indicate with year/direction/degree combo was completed
+    sys.stdout.write('%s %s\r' % (year, direction + str(degree)))
+    sys.stdout.flush()
+
   # Method for getting gap data
   def get_gap_data(self, degree, direction, year, connection, cursor, ll):
     get_gap_lengths = """
