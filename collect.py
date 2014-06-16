@@ -35,9 +35,9 @@ if __name__ == '__main__':
         tasks.put(Task("SELECT e180 FROM gaps250_" + arguments.ll + " WHERE year = ", i, "gaps", arguments.ll))
     elif arguments.type == "lengths_mod":
       if arguments.ll == "lat":
-        tasks.put(Task("SELECT n89 FROM length_year_matrix_mod_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
+        tasks.put(Task("SELECT n89 FROM length_year_matrix_mod_" + arguments.ll + " WHERE year = ", i, "lengths_mod", arguments.ll))
       else:
-        tasks.put(Task("SELECT e180 FROM length_year_matrix_mod_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
+        tasks.put(Task("SELECT e180 FROM length_year_matrix_mod_" + arguments.ll + " WHERE year = ", i, "lengths_mod", arguments.ll))
     elif arguments.type == "lengths":
       if arguments.ll == "lat":
         tasks.put(Task("SELECT n89 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))

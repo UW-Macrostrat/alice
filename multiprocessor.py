@@ -54,6 +54,7 @@ class Task(object):
       degree = 89
       while degree > 0:
         if self.type == "lengths":
+          print self.type
           if self.ll == "lat":
             self.get_length_data(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
             self.get_length_data(degree, 's', self.year, pyConn, pyCursor1, self.ll)
@@ -126,8 +127,9 @@ class Task(object):
       SELECT SUM(length) AS sum FROM (
         SELECT ST_Length_Spheroid(
           ST_Intersection(
-            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  %s AND direction = %s), SELECT reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
-              (SELECT DISTINCT platea FROM distance_azimuth_matrix WHERE year > 500)
+            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  %s AND direction = %s), 
+            (SELECT reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
+              (SELECT DISTINCT platea FROM distance_azimuth_matrix WHERE year > 500))
           ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
         )/1000 length FROM reconstructed_""" + str(year) + """_merged
       ) giantSelect
