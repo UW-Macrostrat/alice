@@ -127,7 +127,7 @@ class Task(object):
       SELECT SUM(length) AS sum FROM (
         SELECT ST_Length_Spheroid(
           ST_Intersection(
-            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees = """ + str(degree) + """AND direction = """ + str(direction.upper()) + """), 
+            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees = """ + str(degree) + """ AND direction = '""" + str(direction.upper()) + """'), 
             (SELECT reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
               (SELECT DISTINCT platea FROM distance_azimuth_matrix WHERE year > 500))
           ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
