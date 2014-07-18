@@ -36,7 +36,7 @@ conn.commit()
 # Find the area of each plate in each year and add the result to the `areas` table
 for plate in plates:
   for year in xrange(0, 551):
-    cur.execute("UPDATE areas SET p" + str(plate[0]) + " = (SELECT ST_Area(geom::geography)/1000 FROM reconstructed_" + str(year) + "_merged WHERE plateid = %s) WHERE year = %s", [plate[0], year])
+    cur.execute("UPDATE areas SET p" + str(plate[0]) + " = (SELECT ST_Area(geom::geography)/1000 FROM merge.reconstructed_" + str(year) + "_merged WHERE plateid = %s) WHERE year = %s", [plate[0], year])
   conn.commit()
   print "Done with plate", plate[0]
 

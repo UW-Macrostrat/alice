@@ -20,8 +20,8 @@ def get_line(year, platea, plateb):
       SELECT %(platea)s AS platea, %(plateb)s AS plateb, %(year)s AS year, ST_GeomFromText(
         ST_AsText(
           ST_ShortestLine(
-              (select geom from reconstructed_""" + str(year) + """_merged WHERE plateid = %(platea)s),
-              (select geom from reconstructed_""" + str(year) + """_merged WHERE  plateid = %(plateb)s)
+              (select geom from merge.reconstructed_%(year)s_merged WHERE plateid = %(platea)s),
+              (select geom from merge.reconstructed_%(year)s_merged WHERE  plateid = %(plateb)s)
           )
         )
       ) AS shortest_line
@@ -73,7 +73,7 @@ def get_directions(year):
   print "Done with directions for year " + str(year)
 
 for year in xrange(0, 551):
-  cur.execute("SELECT DISTINCT plateid FROM reconstructed_" + str(year) + "_merged")
+  cur.execute("SELECT DISTINCT plateid FROM merge.reconstructed_%(year)s_merged", {"year": year})
   plateids = cur.fetchall()
   for platea in plateids:
     for plateb in plateids:

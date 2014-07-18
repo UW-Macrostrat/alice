@@ -30,7 +30,7 @@ def get_genera(year):
   print "Working on ", year
 
   cur.execute("""
-    SELECT DISTINCT plateid FROM reconstructed_""" + str(year) + """_merged
+    SELECT DISTINCT plateid FROM merge.reconstructed_""" + str(year) + """_merged
   """)
 
   # Get all plates for the given year

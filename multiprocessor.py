@@ -98,14 +98,14 @@ class Task(object):
       SELECT SUM(length) AS sum FROM (
         SELECT ST_Length_Spheroid(
           ST_Intersection(
-            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), reconstructed_""" + str(year) + """_merged.geom
+            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  %(degree)s AND direction = %(direction)s), merge.reconstructed_%(year)s_merged.geom
           ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
-        )/1000 length FROM reconstructed_""" + str(year) + """_merged
+        )/1000 length FROM merge.reconstructed_%(year)s_merged
       ) giantSelect
       WHERE length > 0
     """
 
-    cursor.execute(length_query)
+    cursor.execute(length_query, {"degree": degree, "direction": direction.upper(), "year": year})
     lengths = cursor.fetchall()
 
     # If something is returned, use that, otherwise default to zero
@@ -128,10 +128,10 @@ class Task(object):
         SELECT ST_Length_Spheroid(
           ST_Intersection(
             (SELECT geom FROM ne_50m_graticules_1 WHERE degrees = """ + str(degree) + """ AND direction = '""" + str(direction.upper()) + """'), 
-            (SELECT reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
+            (SELECT merge.reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
               (SELECT DISTINCT platea FROM distance_azimuth_matrix WHERE year > 500))
           ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
-        )/1000 length FROM reconstructed_""" + str(year) + """_merged
+        )/1000 length FROM merge.reconstructed_""" + str(year) + """_merged
       ) giantSelect
       WHERE length > 0
     """
@@ -158,7 +158,7 @@ class Task(object):
       SELECT ST_Length_Spheroid(geometry, 'SPHEROID["GRS_1980",6378137,298.257222101]')/1000 AS gap_length FROM (
         SELECT (ST_Dump(
             (SELECT ST_DIFFERENCE((SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), ST_UNION(ST_Buffer(geom, 0.0000001))) 
-          FROM reconstructed_""" + str(self.year) + """_merged)
+          FROM merge.reconstructed_""" + str(self.year) + """_merged)
         )).geom AS geometry
       ) giantselect
     """
