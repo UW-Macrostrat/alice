@@ -135,7 +135,7 @@ def find_groups(year):
     cur.execute("""
       DROP TABLE IF EXISTS temp_union;
       CREATE TABLE temp_union AS
-      SELECT ST_Union(geom) AS geom 
+      SELECT ST_Union(ST_Buffer(geom, 0.0000001)) AS geom 
       FROM (
         SELECT * FROM (
          SELECT (ST_Dump(geomsimp)).geom AS geom, plateid 
@@ -172,21 +172,31 @@ def find_groups(year):
           cur.execute("""
             INSERT INTO temp_rings (id, geom) VALUES (
               99999, 
-              (SELECT ST_Buffer(ST_Union(ST_SymDifference(
-                (SELECT geom FROM temp_rings WHERE id = 1), 
-                (SELECT geom FROM temp_rings WHERE id = %(id)s)
-              )), 0.01))
+              (SELECT 
+                ST_makeValid(ST_Buffer(
+                  ST_Union(
+                    ST_SymDifference(
+                      (SELECT geom FROM temp_rings WHERE id = 1), 
+                      (SELECT geom FROM temp_rings WHERE id = %(id)s)
+                    )
+                  )
+                , 0.01))
+              )
             )
           """, {"id": i})
           conn.commit()
         else:
           # Update existing row
           cur.execute("""
-            UPDATE temp_rings SET geom = (SELECT 
-            ST_Buffer(ST_Union(ST_SymDifference(
-              (SELECT geom FROM temp_rings WHERE id = 99999), 
-              (SELECT geom FROM temp_rings WHERE id = %(id)s)
-            )),0.01) FROM temp_rings) WHERE id = 99999 
+            UPDATE temp_rings SET geom = (
+              SELECT ST_MakeValid(ST_Buffer(
+                ST_Union(
+                  ST_SymDifference(
+                    (SELECT geom FROM temp_rings WHERE id = 99999), 
+                    (SELECT geom FROM temp_rings WHERE id = %(id)s)
+                  )
+                )
+              ,0.01)) FROM temp_rings) WHERE id = 99999 
           """, {"id": i})
           conn.commit()
         i = i + 1
@@ -199,7 +209,7 @@ def find_groups(year):
           WHERE id = 99999
         );
 
-      """, {"index": index, "year": str(year)})
+      """, {"index": index, "year": year})
       conn.commit()
 
     elif num_records[0][0] == 1:
@@ -224,6 +234,6 @@ def find_groups(year):
       conn.commit()
 
 ## Process - change to however many years need to be processed
-for year in xrange(0, 551):
+for year in xrange(258, 551):
   find_groups(year)
   print "------Done with " + str(year) + " -------"

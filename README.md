@@ -9,7 +9,7 @@
 
 
 ## Setup
-***Note: ***  the scripts ````collect.py```` and ````get_jaccard.py```` use the Python module [Multiprocessing](https://docs.python.org/2/library/multiprocessing.html), which leverages all available CPUs for a faster processing time. The config param ````cpus_free```` has a default value of 2, meaning 2 CPUs will remain free for any other tasks on the same machine. If you desire more or less to remain free, please change the default value in ````config.py````.
+**Note: **  the scripts ````collect.py```` and ````get_jaccard.py```` use the Python module [Multiprocessing](https://docs.python.org/2/library/multiprocessing.html), which leverages all available CPUs for a faster processing time. The config param ````cpus_free```` has a default value of 2, meaning 2 CPUs will remain free for any other tasks on the same machine. If you desire more or less to remain free, please change the default value in ````config.py````.
 
 ***^*** indicates that this step takes a considerable amount of time to complete
 
@@ -23,15 +23,17 @@
 
 5.  ***^*** Run ````python azimuth.py````. This populates the first half of table ````distance_azimuth_matrix````, including the fields ````platea````, ````plateb````, ````shortest_line````,  ````distance````, and ````direction````.
 
-6. Run ````python chunks.py````. This populates the schema ````chunks```` and the table ````chunk_matrix````.
+6. ***^*** Run ````python chunks.py````. This populates the schema ````chunks```` and the table ````chunk_matrix````.
 
 7. ***^***  Run ````python collect.py -t lengths -l lat````. This populates the table ````length_year_matrix_lat````, and creates multiple processes in an attempt to fill the table as quickly as possible. 
 
-8.  ***^*** Run ````python collect.py -t gaps -l lat````. This populates the tables ````gaps250_lat````, ````gaps500_lat````, ````gaps1000_lat````, and ````gaps1500_lat````. 
+8. ***^***  Run ````python collect.py -t lengths -l lng````. This populates the table ````length_year_matrix_lng````, and creates multiple processes in an attempt to fill the table as quickly as possible. 
 
-9.  ***^*** Run ````python collect -t gaps -l lng```` to populate the tables ````gaps250_lng````, ````gaps500_lng````, ````gaps1000_lng````, and ````gaps1500_lng````.
+9.  ***^*** Run ````python collect.py -t gaps -l lat````. This populates the tables ````gaps250_lat````, ````gaps500_lat````, ````gaps1000_lat````, and ````gaps1500_lat````. 
 
-10.  ***^*** (***Optional **- requires a local dump of the [Paleobiology Database](http://paleobiodb.org)*) - Run ````get_genera.py````, which populates the table ````plate_genera````, followed by ````python get_jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
+10.  ***^*** Run ````python collect.py -t gaps -l lng```` to populate the tables ````gaps250_lng````, ````gaps500_lng````, ````gaps1000_lng````, and ````gaps1500_lng````.
+
+11.  ***^*** (**Optional **- requires a local dump of the [Paleobiology Database](http://paleobiodb.org)) - Run ````python get_genera.py````, which populates the table ````plate_genera````, followed by ````python get_jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
 
 ## Schemas
 

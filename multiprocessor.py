@@ -54,7 +54,6 @@ class Task(object):
       degree = 89
       while degree > 0:
         if self.type == "lengths":
-          print self.type
           if self.ll == "lat":
             self.get_length_data(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
             self.get_length_data(degree, 's', self.year, pyConn, pyCursor1, self.ll)
