@@ -233,7 +233,16 @@ def find_groups(year):
       """, {"index": index, "year": year})
       conn.commit()
 
+def update_summary(year):
+  cur.execute(""" 
+    INSERT INTO chunk_summary (year, chunks) (
+      SELECT %(year)s AS year, COUNT(*) AS chunks FROM chunks.reconstructed_%(year)s_union
+    )
+  """, { "year": year })
+  conn.commit()
+
 ## Process - change to however many years need to be processed
-for year in xrange(258, 551):
+for year in xrange(0, 551):
   find_groups(year)
+  update_summary(year)
   print "------Done with " + str(year) + " -------"

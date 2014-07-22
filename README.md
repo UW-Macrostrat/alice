@@ -37,7 +37,7 @@
 
 ## Schemas
 
-| Schema        | Description           | Populate  |
+| Schema        | Description           | Populated by  |
 | ------------- | --------------------------- | ------------ |
 | chunks     |  Geometry dissolved on touching (ex: if three polygons touch and surrounded by "water", they are one polygon in this dataset)    | *chunks.py* |
 | merge      |  Same as ````orig````, but ST_Union(geom) GROUP BY plateid    | *populated at start* |
@@ -46,11 +46,12 @@
 
 ## Tables
 
-| Tables        | Description              | Populate  |
+| Tables        | Description              | Populated by  |
 | ------------- | --------------------------- | ------------ |
 | areas                                           | The area of each plate in km<sup>2</sup> in each year  | ````areas.py```` |  
 | centroid_matrix                            | Distance from the centroid of all plates in all years to the equator and prime meridian (in degrees)   | ````centroids.py```` |  
 | chunk_matrix                              | Plate lookup for chunked geometry  | ````chunks.py```` |  
+| chunk_summary                         | Numbers of chunks in each year  | ````chunks.py```` |  
 | distance_azimuth_matrix            | Indicates shortest line, length of shortest line, and azimuth of shortest line between all plate pairs across all years |  ````python azimuth.py```` & ````python get_jaccard.py````  |
 | gaps*x*_lat                                  | Number of gaps > *x* km between plates at each line of latitude   |    ````collect.py -t gaps -l lat````  | 
 | gaps*x*_lng                                  | Number of gaps > *x* km between plates at each line of longitude   |    ````collect.py -t gaps -l lng````  | 
