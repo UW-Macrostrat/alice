@@ -241,8 +241,17 @@ def update_summary(year):
   """, { "year": year })
   conn.commit()
 
+def update_summary_can(year):
+  cur.execute(""" 
+    UPDATE chunk_summary SET can_chunks = (
+      select count(*) from chunk_matrix where year = %(year)s AND NOT plates && (SELECT array_agg(distinct plateid::int) from merge.reconstructed_0_merged where not (plateid = ANY (select distinct plateid from merge.reconstructed_500_merged)))
+    ) WHERE year = %(year)s
+  """, { "year": year })
+  conn.commit()
+
 ## Process - change to however many years need to be processed
 for year in xrange(0, 551):
   find_groups(year)
   update_summary(year)
+  update_summary_can(year)
   print "------Done with " + str(year) + " -------"
