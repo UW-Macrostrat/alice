@@ -56,7 +56,9 @@ if start_year < 0 :
 else :
   start_year -= 1
 
-# For each year between 0 and 550...
+print "---- Starting with year " + str(start_year) + " ---- "
+
+# For each year between the start year and 550...
 for year in xrange(start_year, 551):
   # For each degree between 1 and 89...
   for degree in xrange(1, 90):
@@ -64,6 +66,6 @@ for year in xrange(start_year, 551):
     get_intersections(degree, 'S', year)
 
   # Populate the equator
-  get_intersections(0, 'x', year)
+  get_intersections(0, 'XLAT', year)
   print "---- Done with year " + str(year) + " ----"
   year += 1
