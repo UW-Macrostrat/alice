@@ -60,15 +60,15 @@
 | centroid_matrix                            | Distance from the centroid of all plates in all years to the equator and prime meridian (in degrees)   | ````centroids.py```` |  
 | chunk_matrix                              | Plate lookup for chunked geometry  | ````chunks.py```` |  
 | chunk_summary                         | Numbers of chunks in each year  | ````chunks.py```` |  
-| distance_azimuth_matrix            | Indicates shortest line, length of shortest line, and azimuth of shortest line between all plate pairs across all years |  ````python azimuth.py```` & ````python get_jaccard.py````  |
+| distance_azimuth_matrix            | Indicates shortest line, length of shortest line, and azimuth of shortest line between all plate pairs across all years; also includes intersection and union of genus occurrences for plate pair |  ````python azimuth.py```` & ````python get_jaccard.py````  |
 | gaps*x*_lat                                  | Number of gaps > *x* km between plates at each line of latitude   |    ````collect.py -t gaps -l lat````  | 
 | gaps*x*_lng                                  | Number of gaps > *x* km between plates at each line of longitude   |    ````collect.py -t gaps -l lng````  | 
 | gaps*x*_can_lat                           | Number of gaps > *x* km between plates at each line of latitude using canonical plates  |    ````collect.py -t gaps_can -l lat````  | 
 | gaps*x*_can_lng                         | Number of gaps > *x* km between plates at each line of longitude  using canonical plates |    ````collect.py -t gaps_can -l lng````  | 
-| length_year_matrix_lat 		    | Amount of land at each line of latitude over time      |    ````collect.py -t lengths -l lat````  |
-| length_year_matrix_lng  	           | Amount of land at each line of longitude over time      |    ````collect.py -t lengths -l lng````  |
-| length_year_matrix_can_lat        | Amount of land at each line of latitude over time using canonical plates      |    ````collect.py -t lengths_can -l lat````  |
-| length_year_matrix_can_lng  	    | Amount of land at each line of longitude over time using canonical plates      |    ````collect.py -t lengths_can -l lng````  |
+| length_year_matrix_lat 		    | Amount of land (in km) at each line of latitude over time      |    ````collect.py -t lengths -l lat````  |
+| length_year_matrix_lng  	           | Amount of land (in km) at each line of longitude over time      |    ````collect.py -t lengths -l lng````  |
+| length_year_matrix_can_lat        | Amount of land (in km) at each line of latitude over time using canonical plates      |    ````collect.py -t lengths_can -l lat````  |
+| length_year_matrix_can_lng  	    | Amount of land (in km) at each line of longitude over time using canonical plates      |    ````collect.py -t lengths_can -l lng````  |
 | name_lookup  				    | Lookup plate names by id     |    *populated at start*  |
 | ne_50m_graticules_1                  | 1 degree graticule from [Natural Earth Data](http://www.naturalearthdata.com/downloads/50m-physical-vectors/50m-graticules/)                 | *populated at start* |
 | plate_genera                               | Number of unique genera on a given plate at a given point in time   | ````get_genera.py```` |  
