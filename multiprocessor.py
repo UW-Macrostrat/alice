@@ -51,37 +51,48 @@ class Task(object):
 
     # Otherwise populate it
     else:
-      degree = 89
-      while degree > 0:
-        if self.type == "lengths":
-          if self.ll == "lat":
+      if self.ll == "lat":
+        degree = 89
+        while degree > 0:
+          if self.type == "lengths":
             self.get_length_data(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
             self.get_length_data(degree, 's', self.year, pyConn, pyCursor1, self.ll)
-          else:
-            self.get_length_data(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
-            self.get_length_data(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
-
-          degree -= 1
-        elif self.type == "lengths_mod":
-          if self.ll == "lat":
-            self.get_length_data_mod(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
-            self.get_length_data_mod(degree, 's', self.year, pyConn, pyCursor1, self.ll)
-          else:
-            self.get_length_data_mod(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
-            self.get_length_data_mod(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
-
-          degree -= 1
-        elif self.type == "gaps":
-          if self.ll == "lat":
+            degree -= 1
+          elif self.type == "lengths_can":
+            self.get_length_data_can(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
+            self.get_length_data_can(degree, 's', self.year, pyConn, pyCursor1, self.ll)
+            degree -= 1
+          elif self.type == "gaps":
             self.get_gap_data(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
             self.get_gap_data(degree, 's', self.year, pyConn, pyCursor1, self.ll)
+            degree -= 1
+          elif self.type == "gaps_can":
+            self.get_gap_data_can(degree, 'n', self.year, pyConn, pyCursor1, self.ll)
+            self.get_gap_data_can(degree, 's', self.year, pyConn, pyCursor1, self.ll)
+            degree -= 1
           else:
+            print "Invalid type"
+      else:
+        degree = 179
+        while degree > 0:
+          if self.type == "lengths":
+            self.get_length_data(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
+            self.get_length_data(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
+            degree -= 1
+          elif self.type == "lengths_can":
+            self.get_length_data_can(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
+            self.get_length_data_can(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
+            degree -= 1
+          elif self.type == "gaps":
             self.get_gap_data(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
             self.get_gap_data(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
-          degree -= 1
-        else:
-          print "Invalid type"
-          
+            degree -= 1
+          elif self.type == "gaps_can":
+            self.get_gap_data_can(degree, 'e', self.year, pyConn, pyCursor1, self.ll)
+            self.get_gap_data_can(degree, 'w', self.year, pyConn, pyCursor1, self.ll)
+            degree -= 1
+          else:
+            print "Invalid type"
 
       # Populate the equator
       if self.type == "lengths":
@@ -121,7 +132,7 @@ class Task(object):
     sys.stdout.flush()
 
   # Method for getting length excluding new plates
-  def get_length_data_mod(self, degree, direction, year, connection, cursor, ll):
+  def get_length_data_can(self, degree, direction, year, connection, cursor, ll):
     length_query = """
       SELECT SUM(length) AS sum FROM (
         SELECT ST_Length_Spheroid(
@@ -145,7 +156,7 @@ class Task(object):
       total_length = 0
 
     # Store the length
-    self.update_matrix(degree, direction, year, "length_year_matrix_mod_" + ll, total_length, connection, cursor)
+    self.update_matrix(degree, direction, year, "length_year_matrix_can_" + ll, total_length, connection, cursor)
 
     # Indicate with year/direction/degree combo was completed
     sys.stdout.write('%s %s\r' % (year, direction + str(degree)))
@@ -186,6 +197,51 @@ class Task(object):
     # Record the gap counts
     for threshold, gaps in counts.iteritems():
       self.update_matrix(degree, direction, self.year, "gaps" + threshold + "_" + ll, len(gaps), connection, cursor)
+
+    # Indicate with year/direction/degree combo was completed
+    sys.stdout.write('%s %s\r' % (year, direction + str(degree)))
+    sys.stdout.flush()
+
+  # Method for getting gap data
+  def get_gap_data_can(self, degree, direction, year, connection, cursor, ll):
+    get_gap_lengths = """
+      SELECT ST_Length_Spheroid(geometry, 'SPHEROID["GRS_1980",6378137,298.257222101]')/1000 AS gap_length FROM (
+        SELECT (ST_Dump(
+            (SELECT ST_DIFFERENCE(
+              (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), 
+              ST_UNION(
+                ST_Buffer(
+                  (SELECT merge.reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
+              (SELECT DISTINCT platea FROM distance_azimuth_matrix WHERE year > 500)), 0.0000001))) 
+          FROM merge.reconstructed_""" + str(self.year) + """_merged)
+        )).geom AS geometry
+      ) giantselect
+    """
+
+    cursor.execute(get_gap_lengths)
+    gap_lengths_tuples = cursor.fetchall()
+    gap_lengths = []
+
+    # Each row comes back as a tuple, so we'll simplify into a flat list for ease of counting
+    for each in gap_lengths_tuples:
+      gap_lengths.append(each[0])
+
+    # If there is 1 gap, but it's very small, say that land covers that latitude
+    if len(gap_lengths) == 1:
+      if  gap_lengths[0] < 2:
+        gap_lengths = []
+
+    # In KM
+    counts = {
+      "250": [gap for gap in gap_lengths if gap > 250],
+      "500": [gap for gap in gap_lengths if gap > 500],
+      "1000": [gap for gap in gap_lengths if gap > 1000],
+      "1500": [gap for gap in gap_lengths if gap > 1500]
+    }
+
+    # Record the gap counts
+    for threshold, gaps in counts.iteritems():
+      self.update_matrix(degree, direction, self.year, "gaps" + threshold + "_can_" + ll, len(gaps), connection, cursor)
 
     # Indicate with year/direction/degree combo was completed
     sys.stdout.write('%s %s\r' % (year, direction + str(degree)))

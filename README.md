@@ -9,7 +9,7 @@
 
 
 ## Setup
-**Note: **  the scripts ````collect.py```` and ````get_jaccard.py```` use the Python module [Multiprocessing](https://docs.python.org/2/library/multiprocessing.html), which leverages all available CPUs for a faster processing time. The config param ````cpus_free```` has a default value of 2, meaning 2 CPUs will remain free for any other tasks on the same machine. If you desire more or less to remain free, please change the default value in ````config.py````.
+**Note:**  the scripts ````collect.py```` and ````get_jaccard.py```` use the Python module [Multiprocessing](https://docs.python.org/2/library/multiprocessing.html), which leverages all available CPUs for a faster processing time. The config param ````cpus_free```` has a default value of 2, meaning 2 CPUs will remain free for any other tasks on the same machine. If you desire more or less to remain free, please change the default value in ````config.py````.
 
 ***^*** indicates that this step takes a considerable amount of time to complete
 
@@ -33,7 +33,15 @@
 
 10.  ***^*** Run ````python collect.py -t gaps -l lng```` to populate the tables ````gaps250_lng````, ````gaps500_lng````, ````gaps1000_lng````, and ````gaps1500_lng````.
 
-11.  ***^*** (**Optional **- requires a local dump of the [Paleobiology Database](http://paleobiodb.org)) - Run ````python get_genera.py````, which populates the table ````plate_genera````, followed by ````python get_jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
+11.  ***^*** Run ````python collect.py -t lengths_can -l lat```` to populate the table ````length_year_matrix_can_lat````.
+
+12.  ***^*** Run ````python collect.py -t lengths_can -l lng```` to populate the table ````length_year_matrix_can_lng````.
+
+13. ***^*** Run ````python collect.py -t gaps_can -l lat```` to populate the tables ````gaps250_can_lat````, ````gaps500_can_lat````, ````gaps1000_can_lat````, and ````gaps1500_can_lat````.
+
+14.  ***^*** Run ````python collect.py -t gaps_can -l lng```` to populate the tables ````gaps250_can_lng````, ````gaps500_can_lng````, ````gaps1000_can_lng````, and ````gaps1500_can_lng````.
+
+15.  ***^*** (**Optional **- requires a local dump of the [Paleobiology Database](http://paleobiodb.org)) - Run ````python get_genera.py````, which populates the table ````plate_genera````, followed by ````python get_jaccard.py````. This populates the second half of table ````distance_azimuth_matrix````, including the fields ````uunion````, and ````intersection````, which can used to compute a [Jaccard Index](http://en.wikipedia.org/wiki/Jaccard_index).
 
 ## Schemas
 
@@ -55,8 +63,12 @@
 | distance_azimuth_matrix            | Indicates shortest line, length of shortest line, and azimuth of shortest line between all plate pairs across all years |  ````python azimuth.py```` & ````python get_jaccard.py````  |
 | gaps*x*_lat                                  | Number of gaps > *x* km between plates at each line of latitude   |    ````collect.py -t gaps -l lat````  | 
 | gaps*x*_lng                                  | Number of gaps > *x* km between plates at each line of longitude   |    ````collect.py -t gaps -l lng````  | 
+| gaps*x*_can_lat                           | Number of gaps > *x* km between plates at each line of latitude using canonical plates  |    ````collect.py -t gaps_can -l lat````  | 
+| gaps*x*_can_lng                         | Number of gaps > *x* km between plates at each line of longitude  using canonical plates |    ````collect.py -t gaps_can -l lng````  | 
 | length_year_matrix_lat 		    | Amount of land at each line of latitude over time      |    ````collect.py -t lengths -l lat````  |
 | length_year_matrix_lng  	           | Amount of land at each line of longitude over time      |    ````collect.py -t lengths -l lng````  |
+| length_year_matrix_can_lat        | Amount of land at each line of latitude over time using canonical plates      |    ````collect.py -t lengths_can -l lat````  |
+| length_year_matrix_can_lng  	    | Amount of land at each line of longitude over time using canonical plates      |    ````collect.py -t lengths_can -l lng````  |
 | name_lookup  				    | Lookup plate names by id     |    *populated at start*  |
 | ne_50m_graticules_1                  | 1 degree graticule from [Natural Earth Data](http://www.naturalearthdata.com/downloads/50m-physical-vectors/50m-graticules/)                 | *populated at start* |
 | plate_genera                               | Number of unique genera on a given plate at a given point in time   | ````get_genera.py```` |  

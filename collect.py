@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("-t", "--type", dest="type",
   default="lengths", type=str, required=True,
-  help="Type of data to collect. Can be either 'lengths', 'lengths_mod' or 'gaps'.")
+  help="Type of data to collect. Can be either 'lengths', 'lengths_can', 'gaps', or 'gaps_can'.")
 
 parser.add_argument("-ll", "--latlng", dest="ll",
   default="lat", type=str, required=True,
@@ -28,21 +28,31 @@ if __name__ == '__main__':
   
   # Set the range to whatever year you want to go up to (551 is the max)
   for i in xrange(551):
+
     if arguments.type == "gaps":
       if arguments.ll == "lat":
         tasks.put(Task("SELECT n89 FROM gaps250_" + arguments.ll + " WHERE year = ", i, "gaps", arguments.ll))
       else:
         tasks.put(Task("SELECT e180 FROM gaps250_" + arguments.ll + " WHERE year = ", i, "gaps", arguments.ll))
-    elif arguments.type == "lengths_mod":
+
+    if arguments.type == "gaps_can":
       if arguments.ll == "lat":
-        tasks.put(Task("SELECT n89 FROM length_year_matrix_mod_" + arguments.ll + " WHERE year = ", i, "lengths_mod", arguments.ll))
+        tasks.put(Task("SELECT n89 FROM gaps250_can_" + arguments.ll + " WHERE year = ", i, "gaps_can", arguments.ll))
       else:
-        tasks.put(Task("SELECT e180 FROM length_year_matrix_mod_" + arguments.ll + " WHERE year = ", i, "lengths_mod", arguments.ll))
+        tasks.put(Task("SELECT e180 FROM gaps250_can_" + arguments.ll + " WHERE year = ", i, "gaps_can", arguments.ll))
+
+    elif arguments.type == "lengths_can":
+      if arguments.ll == "lat":
+        tasks.put(Task("SELECT n89 FROM length_year_matrix_can_" + arguments.ll + " WHERE year = ", i, "lengths_can", arguments.ll))
+      else:
+        tasks.put(Task("SELECT e180 FROM length_year_matrix_can_" + arguments.ll + " WHERE year = ", i, "lengths_can", arguments.ll))
+
     elif arguments.type == "lengths":
       if arguments.ll == "lat":
         tasks.put(Task("SELECT n89 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
       else:
         tasks.put(Task("SELECT e180 FROM length_year_matrix_" + arguments.ll + " WHERE year = ", i, "lengths", arguments.ll))
+
     else:
       print "Invalid argument for type"
   for i in range(num_processors):
