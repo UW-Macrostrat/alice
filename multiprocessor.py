@@ -97,8 +97,14 @@ class Task(object):
       # Populate the equator
       if self.type == "lengths":
         self.get_length_data(0, 'x' + self.ll, self.year, pyConn, pyCursor1, self.ll)
-      else:
+      elif self.type == "lengths_can":
+        self.get_length_data_can(0, 'x' + self.ll, self.year, pyConn, pyCursor1, self.ll)
+      elif self.type == "gaps":
         self.get_gap_data(0, 'x' + self.ll, self.year, pyConn, pyCursor1, self.ll)
+      elif self.type == "gaps_can":
+        self.get_gap_data_can(0, 'x' + self.ll, self.year, pyConn, pyCursor1, self.ll)
+      else:
+        "print error"
 
       print "---- Done with year " + str(self.year) + " ----"
   
@@ -108,9 +114,9 @@ class Task(object):
       SELECT SUM(length) AS sum FROM (
         SELECT ST_Length_Spheroid(
           ST_Intersection(
-            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  %(degree)s AND direction = %(direction)s), merge.reconstructed_%(year)s_merged.geom
+            (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  %(degree)s AND direction = %(direction)s), chunks.reconstructed_%(year)s_union.geom
           ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
-        )/1000 length FROM merge.reconstructed_%(year)s_merged
+        )/1000 length FROM chunks.reconstructed_%(year)s_union
       ) giantSelect
       WHERE length > 0
     """
@@ -168,7 +174,7 @@ class Task(object):
       SELECT ST_Length_Spheroid(geometry, 'SPHEROID["GRS_1980",6378137,298.257222101]')/1000 AS gap_length FROM (
         SELECT (ST_Dump(
             (SELECT ST_DIFFERENCE((SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), ST_UNION(ST_Buffer(geom, 0.0000001))) 
-          FROM merge.reconstructed_""" + str(self.year) + """_merged)
+          FROM chunks.reconstructed_""" + str(self.year) + """_union)
         )).geom AS geometry
       ) giantselect
     """
