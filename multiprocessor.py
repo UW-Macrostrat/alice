@@ -144,12 +144,10 @@ class Task(object):
         SELECT ST_Length_Spheroid(
           ST_Intersection(
             (SELECT geom FROM ne_50m_graticules_1 WHERE degrees = """ + str(degree) + """ AND direction = '""" + str(direction.upper()) + """'), 
-            (SELECT merge.reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
-              (SELECT DISTINCT platea FROM distance_azimuth_matrix WHERE year > 500))
+            geom
           ), 'SPHEROID["GRS_1980",6378137,298.257222101]'
-        )/1000 length FROM merge.reconstructed_""" + str(year) + """_merged
+        )/1000 length FROM chunks_can.reconstructed_""" + str(year) + """
       ) giantSelect
-      WHERE length > 0
     """
 
     cursor.execute(length_query)
@@ -216,10 +214,8 @@ class Task(object):
             (SELECT ST_DIFFERENCE(
               (SELECT geom FROM ne_50m_graticules_1 WHERE degrees =  """ + str(degree) + """ AND direction = '""" + direction.upper() + """'), 
               ST_UNION(
-                ST_Buffer(
-                  (SELECT merge.reconstructed_""" + str(year) + """_merged.geom WHERE plateid IN 
-              (SELECT DISTINCT platea FROM distance_azimuth_matrix WHERE year > 500)), 0.0000001))) 
-          FROM merge.reconstructed_""" + str(self.year) + """_merged)
+                ST_Buffer(geom, 0.0000001))) 
+          FROM chunks_can.reconstructed_""" + str(self.year) + """)
         )).geom AS geometry
       ) giantselect
     """

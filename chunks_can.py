@@ -2,24 +2,7 @@ import os
 import sys
 import psycopg2
 from config import *
-'''
-create schema chunks_can;
-CREATE TABLE public.chunk_matrix_can
-(
-  id integer NOT NULL DEFAULT nextval('chunk_matrix_id_seq'::regclass),
-  plateid integer NOT NULL,
-  year integer NOT NULL,
-  plates integer[],
-  CONSTRAINT chunk_matrix_can_pkey PRIMARY KEY (id)
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE public.chunk_matrix_can
-  OWNER TO john;
 
-
-'''
 # Connect to the database
 try:
   conn = psycopg2.connect(dbname="alice", user=user_name, host=host_name, port=port_no)
