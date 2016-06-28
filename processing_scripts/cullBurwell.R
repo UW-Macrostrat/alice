@@ -9,9 +9,10 @@ cullBurwell<-function(Shapefile) {
  		    error=function(Error) return(NA)
  		    )
  	    if (class(Temp)!="SpatialPolygonsDataFrame") {
- 	        print(i);
- 	        next;
+ 	        print(i)
  	        }
- 	    writeOGR(Temp,paste("Sedimentary","Age",i,sep="_"),layer="Temp",driver="GeoJSON")
- 	    }
+ 	    else {
+ 	        writeOGR(Temp,paste("Sedimentary","Age",i,sep="_"),layer="Temp",driver="GeoJSON")
+ 	        }
+        }
     }
